@@ -1,17 +1,10 @@
-package com.edu.film_database.model;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
+package com.edu.film_database.model.dto;
 
 import java.util.List;
 
-@Entity
-@Table(name = "films")
-public class Film {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+public class FilmRequestDTO {
 
+    int id;
     String title;
     String genre;
     List<String> cast;
@@ -22,11 +15,11 @@ public class Film {
     String colorStatus;
     String cameraUsed;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<Review> reviews;
 
-    public Film(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> language, double aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
+    public FilmRequestDTO() {
+    }
+
+    public FilmRequestDTO(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> languages, double aspectRatio, String colorStatus, String cameraUsed) {
         this.id = id;
         this.title = title;
         this.genre = genre;
@@ -37,11 +30,8 @@ public class Film {
         this.aspectRatio = aspectRatio;
         this.colorStatus = colorStatus;
         this.cameraUsed = cameraUsed;
-        this.reviews = reviews;
     }
 
-    public Film() {
-    }
 
     public int getId() {
         return id;
@@ -95,8 +85,8 @@ public class Film {
         return languages;
     }
 
-    public void setLanguage(List<String> langusges) {
-        this.languages = langusges;
+    public void setLanguages(List<String> languages) {
+        this.languages = languages;
     }
 
     public double getAspectRatio() {
@@ -121,13 +111,5 @@ public class Film {
 
     public void setCameraUsed(String cameraUsed) {
         this.cameraUsed = cameraUsed;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
     }
 }
