@@ -1,4 +1,4 @@
-package com.edu.film_database.entity;
+package com.edu.film_database.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
