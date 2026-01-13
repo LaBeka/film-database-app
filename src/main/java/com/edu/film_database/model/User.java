@@ -48,7 +48,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonBackReference
-    private List<Review> bookings;
+    private List<Review> reviews;
 
     //when review entity is created add the relation to it.
 }
