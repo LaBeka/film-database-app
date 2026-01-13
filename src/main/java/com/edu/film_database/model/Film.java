@@ -1,5 +1,6 @@
 package com.edu.film_database.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -21,7 +22,11 @@ public class Film {
     String colorStatus;
     String cameraUsed;
 
-    public Film(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> langusges, double aspectRatio, String colorStatus, String cameraUsed) {
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Review> reviews;
+
+    public Film(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> langusges, double aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
         this.id = id;
         this.title = title;
         this.genre = genre;
@@ -32,6 +37,7 @@ public class Film {
         this.aspectRatio = aspectRatio;
         this.colorStatus = colorStatus;
         this.cameraUsed = cameraUsed;
+        this.reviews = reviews;
     }
 
     public Film() {
@@ -115,5 +121,13 @@ public class Film {
 
     public void setCameraUsed(String cameraUsed) {
         this.cameraUsed = cameraUsed;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
     }
 }
