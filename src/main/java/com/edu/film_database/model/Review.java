@@ -40,6 +40,14 @@ public class Review {
         this.film = film;
     }
 
+    public Review(String text, LocalDate date, int score, User user, Film film) {
+        this.text = text;
+        this.date = date;
+        this.score = score;
+        this.user = user;
+        this.film = film;
+    }
+
     public int getId() {
         return id;
     }
