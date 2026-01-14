@@ -18,20 +18,20 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<List<UserResponseDto>> getAllUsers(Principal principal) {
-        List<UserResponseDto> response = userService.getAllUser(principal);
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        List<UserResponseDto> response = userService.getAllUser();
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> getUserByID(int id, Principal principal) {
-        UserResponseDto response = userService.getUserById(id, principal);
+    public ResponseEntity<UserResponseDto> getUserByID(int id) {
+        UserResponseDto response = userService.getUserById(id);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> getUserByEmail(String email, Principal principal) {
-        UserResponseDto response = userService.getUserByEmail(email, principal);
+    public ResponseEntity<UserResponseDto> getUserByEmail(String email) {
+        UserResponseDto response = userService.getUserByEmail(email);
         return ResponseEntity.ok(response);
     }
 

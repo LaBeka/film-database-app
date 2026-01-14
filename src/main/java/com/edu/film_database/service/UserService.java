@@ -1,6 +1,5 @@
 package com.edu.film_database.service;
 
-import ch.qos.logback.core.joran.spi.ActionException;
 import com.edu.film_database.config.JwtUtil;
 import com.edu.film_database.dto.request.UserRequestDto;
 import com.edu.film_database.dto.response.UserResponseDto;
@@ -20,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,12 +38,17 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     private User getAuthorizedUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("Logged user not found"));
+        Optional<User> principalFromDB = userRepository.findByEmail(email);
+        if(principalFromDB.isEmpty()) {
+            throw new EntityNotFoundException("Logged user not found");
+        }
+        if(!principalFromDB.get().isCurrentlyActive()){
+            throw new EntityNotFoundException("Logged user is removed from database");
+        }
+        return principalFromDB.get();
     }
 
-    public List<UserResponseDto> getAllUser(Principal principal) {
-        getAuthorizedUser(principal.getName());
-
+    public List<UserResponseDto> getAllUser() {
         List<User> users = userRepository.findAll();
 
         return users.stream()
@@ -58,9 +63,7 @@ public class UserService {
                 .toList();
     }
 
-    public UserResponseDto getUserById(int id, Principal principal) {
-        getAuthorizedUser(principal.getName());
-
+    public UserResponseDto getUserById(int id) {
         User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User by provided id not found"));
 
         Set<String> stringRoles = user.getRoles().stream()
@@ -70,9 +73,7 @@ public class UserService {
         return entityToResponseDto(user, stringRoles);
     }
 
-    public UserResponseDto getUserByEmail(String email, Principal principal) {
-        getAuthorizedUser(principal.getName());
-
+    public UserResponseDto getUserByEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
 
         Set<String> stringRoles = user.getRoles().stream()
@@ -89,10 +90,10 @@ public class UserService {
 
         if(user.isEmpty()) {
             User newUser = User.builder()
+                    .fullName(dto.getFullName())
                     .username(dto.getUsername())
                     .email(dto.getEmail())
                     .password(encoder.encode(dto.getPassword()))
-                    .fullName(dto.getFullName())
                     .age(dto.getAge())
                     .currentlyActive(true)
                     .roles(userRole)
@@ -103,16 +104,16 @@ public class UserService {
             throw new EntityExistsException("User with given email already exists, give another email.");
         }
 
-        return generateToken(user.get().getEmail(), dto.getPassword());
+        return generateToken(user.get().getEmail(), user.get().getPassword());
     }
 
     public UserResponseDto updateUserData(UserRequestDto dto, Principal principal) {
-        getAuthorizedUser(principal.getName());
+        User authorizedUser = getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
 
-        if(!principal.getName().equals(dto.getEmail())) {
-            throw new EntityNotFoundException("You can update only your own data. Authenticated user's email does not match with provided email");
+        if(!authorizedUser.getEmail().equals(dto.getEmail())) {
+            throw new EntityNotFoundException("Authenticated user's email does not match with provided email. You can update only your own data. ");
         }
         Set<String> stringRoles = user.getRoles().stream()
                 .map(role -> role.getName()) // or role.getAuthority(), etc.
@@ -132,17 +133,24 @@ public class UserService {
     }
 
     public UserResponseDto updateUserRole(String email, Principal principal) {
-        getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
+        User authorizedUser = getAuthorizedUser(principal.getName());
 
+        if(authorizedUser.getEmail().equals(user.getEmail())) {
+            throw new EntityNotFoundException("Authenticated user can not promote his own role.");
+        }
         if(!user.isCurrentlyActive()) {
             throw new EntityNotFoundException("User is removed from db.");
         }
 
-        Set<Role> roles = user.getRoles();
+        Set<Role> roles = new HashSet<>(user.getRoles());
         if(roles.size() == 1){
-            Role admin = roleRepository.findAll().stream().filter(r -> r.getName().equals("ADMIN")).findAny().get();
+            Role admin = roleRepository.findAll()
+                            .stream()
+                                    .filter(r -> r.getName().equals("ADMIN"))
+                                    .findFirst()
+                                    .get();
             roles.add(admin);
 
             user.setRoles(roles);
@@ -157,12 +165,15 @@ public class UserService {
     }
 
     public UserResponseDto deleteUserByEmail(String email, Principal principal) {
-        getAuthorizedUser(principal.getName());
+        User authorizedUser = getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
 
         if(!user.isCurrentlyActive()) {
             throw new EntityNotFoundException("User is already removed from db.");
+        }
+        if(user.getEmail().equals(authorizedUser.getEmail())) {
+            throw new EntityNotFoundException("Provided email matches with logged user's email. You can not remove yourself from db.");
         }
         user.setCurrentlyActive(false);
         userRepository.save(user);

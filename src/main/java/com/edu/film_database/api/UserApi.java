@@ -24,34 +24,32 @@ public interface UserApi {
 
     @GetMapping("/get/list")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "List of all users. Available for role: ADMIN")
-    ResponseEntity<List<UserResponseDto>> getAllUsers(Principal principal);
+    @Operation(summary = "List of all active users. Available for role: ADMIN")
+    ResponseEntity<List<UserResponseDto>> getAllUsers();
 
     @GetMapping("/get/id/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Get user by id. Available for role: USER and ADMIN")
-    ResponseEntity<UserResponseDto> getUserByID(@Positive @PathVariable("id") int id,
-                                                Principal principal);
+    ResponseEntity<UserResponseDto> getUserByID(@Positive @PathVariable("id") int id);
 
     @GetMapping("/get/email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get user by email. Available for role: ADMIN")
-    ResponseEntity<UserResponseDto> getUserByEmail(@Email(message = "Email format is invalid") @PathVariable("email") String email,
-                                                   Principal principal);
+    ResponseEntity<UserResponseDto> getUserByEmail(@Email(message = "Email format is invalid") @PathVariable("email") String email);
 
     @PostMapping("/create")
-    @Operation(summary = "Create new user with default 'USER' role and send back jwt-token. NO ROLE")
+    @Operation(summary = "Create new user with default 'USER' role and send back jwt-token. If email is taken throws Conflict exception. NO ROLE")
     ResponseEntity<String> createNewUser(@Valid @RequestBody UserRequestDto userRequest);
 
     @PutMapping("/update/{email}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @Operation(summary = "Update user. Available for role: USER or ADMIN")
+    @Operation(summary = "Update your own data, throws Conflict exception if you try update someone else's data. Available for role: USER or ADMIN")
     ResponseEntity<UserResponseDto> updateUser(
             @Valid @RequestBody UserRequestDto userRequest,
             Principal principal);
 
     @PostMapping("/updateUserToAdmin/{email}")
-    @Operation(summary = "Update existing user's 'USER' role to 'ADMIN'")
+    @Operation(summary = "Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict exception.")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     ResponseEntity<UserResponseDto> updateUserRoleAdmin(
             @Email(message = "Email format is invalid") @PathVariable String email,
@@ -60,7 +58,7 @@ public interface UserApi {
 
     @DeleteMapping("/{email}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete user by email. Available for role: ADMIN")
+    @Operation(summary = "Delete user by email. If you try to remove yourself from db it throws exception. Available for role: ADMIN")
     ResponseEntity<?>  deleteUserByEmail(@Email(message = "Email format is invalid") @PathVariable("email") String email, Principal principal);
 
 
