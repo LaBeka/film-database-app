@@ -3,7 +3,9 @@ package com.edu.film_database.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -16,11 +18,11 @@ import java.util.Set;
 public class User {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
-    @Column(name="user_name")
+    @Column(name = "user_name")
     private String username;
 
     @Column(unique = true, nullable = false)
@@ -28,12 +30,12 @@ public class User {
 
     private String password;
 
-    @Column(name="full_name")
+    @Column(name = "full_name")
     private String fullName;
 
     private int age;
 
-    @Column(name="currently_active")
+    @Column(name = "currently_active")
     private boolean currentlyActive;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -44,5 +46,6 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    //when review entity is created add the relation to it.
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews = new ArrayList<>();
 }
