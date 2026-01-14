@@ -36,9 +36,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ReviewNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleCourseExists(
-            ReviewNotFoundException ex) {
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<Map<String, Object>> handleEntityExists(EntityExistsException ex) {
 
@@ -47,23 +44,18 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.CONFLICT.value());
         body.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ReviewNotUsersOwnReviewException.class)
     public ResponseEntity<Map<String, Object>> handleCourseExists(
             ReviewNotUsersOwnReviewException ex) {
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleEntityExists(EntityNotFoundException ex) {
 
         Map<String, Object> body = new HashMap<>();
         body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("status", HttpStatus.CONFLICT.value());
         body.put("message", ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

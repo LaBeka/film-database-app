@@ -1,40 +1,40 @@
 -- 1. Create the Roles table
-CREATE TABLE roles
-(
-    id   INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
-);
+--CREATE TABLE roles
+--(
+--    id   INT AUTO_INCREMENT PRIMARY KEY,
+--    name VARCHAR(50) NOT NULL UNIQUE
+--);
 
 -- 2. Create Users Table
-CREATE TABLE users
-(
-    id               INT AUTO_INCREMENT PRIMARY KEY,
-    user_name        VARCHAR(255),
-    email            VARCHAR(255) NOT NULL UNIQUE,
-    password         VARCHAR(255) NOT NULL,
-    full_name        VARCHAR(255),
-    age              INT,
-    currently_active BOOLEAN DEFAULT TRUE
-);
+--CREATE TABLE users
+--(
+--    id               INT AUTO_INCREMENT PRIMARY KEY,
+--    user_name        VARCHAR(255),
+--    email            VARCHAR(255) NOT NULL UNIQUE,
+--    password         VARCHAR(255) NOT NULL,
+--    full_name        VARCHAR(255),
+--    age              INT,
+--    currently_active BOOLEAN DEFAULT TRUE
+--);
 
 -- 3. Create Join Table for User <-> Role
-CREATE TABLE users_roles
-(
-    user_id INT NOT NULL,
-    role_id INT NOT NULL,
-    PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE
-);
+--CREATE TABLE users_roles
+--(
+--    user_id INT NOT NULL,
+--    role_id INT NOT NULL,
+--    PRIMARY KEY (user_id, role_id),
+--    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+--    FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE
+--);
 -- 4. Create Reviews Table (Linked to User)
-CREATE TABLE reviews
-(
-    id       INT AUTO_INCREMENT PRIMARY KEY,
-    content  TEXT,
-    movie_id INT, -- Logical FK for your microservice
-    user_id  INT, -- Physical FK to User
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
-);
+--CREATE TABLE reviews
+--(
+--    id       INT AUTO_INCREMENT PRIMARY KEY,
+--    content  TEXT,
+--    movie_id INT, -- Logical FK for your microservice
+--    user_id  INT, -- Physical FK to User
+--    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+--);
 
 INSERT INTO roles(name)
 VALUES ('ADMIN'),
@@ -56,8 +56,8 @@ VALUES (1, 1),
        (3, 2);
 
 -- Insert Reviews
-INSERT INTO reviews (content, movie_id, user_id)
+INSERT INTO reviews (text, date, score)
 VALUES
-    ('Amazing movie!', 101, 1),
-    ('I didnt really like the ending.', 102, 1),
-    ('A masterpiece of cinema.', 101, 2);
+    ('Amazing movie!', "2026-01-01", 1),
+    ('I didnt really like the ending.', "2026-01-02", 1),
+    ('A masterpiece of cinema.', "2026-01-03", 2);

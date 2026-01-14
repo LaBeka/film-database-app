@@ -8,10 +8,10 @@ import com.edu.film_database.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/review")
 public class ReviewController implements ReviewApi {
 
     private final ReviewService service;
@@ -21,40 +21,40 @@ public class ReviewController implements ReviewApi {
     }
 
 
-    @GetMapping("user/getAllReviews")
+    @Override
     public ResponseEntity<List<FilmReviewResponseDto>> getAllReviews(){
         return ResponseEntity.ok(service.getAllReviews());
     }
 
-    @GetMapping("user/getByFilm/{filmTitle}")
+    @Override
     public ResponseEntity<FilmReviewResponseDto> getReviewByFilm(
             @PathVariable String filmTitle){
         return ResponseEntity.ok(service.getByFilm(filmTitle));
     }
 
-    @GetMapping("admin/getByUser/{userName}")
+    @Override
     public ResponseEntity<List<FilmReviewResponseDto>> getReviewByUser(
             @PathVariable String userName){
         return ResponseEntity.ok(service.getByUserName(userName));
     }
 
-    @PostMapping("user/createReview")
-    public ResponseEntity<String> createReview(@RequestBody CreateReviewRequestDto dto){
-        return null;
+    @Override
+    public ResponseEntity<String> createReview(@RequestBody CreateReviewRequestDto dto, Principal principal){
+        return ResponseEntity.ok(service.createReview(principal, dto));
     }
 
-    @PatchMapping("user/updateReview")
-    public ResponseEntity<String> updateReview(@RequestBody UpdateReviewRequestDto dto){
-        return null;
+    @Override
+    public ResponseEntity<String> updateReview(@RequestBody UpdateReviewRequestDto dto, Principal principal){
+        return ResponseEntity.ok(service.updateReview(principal, dto));
     }
 
-    @DeleteMapping("user/deleteReview/{index}")
-    public ResponseEntity<String> deleteReviewUser(@PathVariable int index){
-        return null;
+    @Override
+    public ResponseEntity<String> deleteReviewUser(@PathVariable int index, Principal principal){
+        return ResponseEntity.ok(service.deleteReviewUser(index, principal));
     }
 
-    @DeleteMapping("admin/deleteReview/{index}")
+    @Override
     public ResponseEntity<String> deleteReviewAdmin(@PathVariable int index){
-        return null;
+        return ResponseEntity.ok(service.deleteReviewAdmin(index));
     }
 }
