@@ -52,7 +52,7 @@ public interface UserApi {
 
     @PostMapping("/updateUserToAdmin/{email}")
     @Operation(summary = "Update existing user's 'USER' role to 'ADMIN'")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     ResponseEntity<UserResponseDto> updateUserRoleAdmin(
             @Email(message = "Email format is invalid") @PathVariable String email,
             Principal principal);
