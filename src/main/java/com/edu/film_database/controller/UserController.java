@@ -6,18 +6,24 @@ import com.edu.film_database.dto.response.UserResponseDto;
 import com.edu.film_database.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
 
 @RestController
+@RequestMapping(UserApi.API_PATH_DICTIONARY)
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
     private final UserService userService;
 
     @Override
+//    @GetMapping("/get/list")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> response = userService.getAllUser();
         return ResponseEntity.ok(response);

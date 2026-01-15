@@ -77,28 +77,14 @@ public class UserServiceTest {
                 adminUser.getEmail(), null);
 
     }
-
-//    1. createNewUser(UserRequestDto dto)
-//    What to test:
-//    Success: Does it save a user with the role "USER"? Does it return a token?
-//    Constraint: Does it throw EntityExistsException if the email already exists in the DB?
-//    Hashing: Does it call encoder.encode()? (You verify the password was transformed).
-
-    //public UserResponseDto updateUserData(UserRequestDto dto, Principal principal) {}
-    // what can be testable in the function?
-    // DESCRIPTION Testing the "Only update your own data" rule
-
-    // public UserResponseDto updateUserRole(String email) {}
-    // can be testable for the length of the roles, it should be more than 1 role since iam adding new admin role to user role
-
-    //public UserResponseDto deleteUserByEmail(String email, Principal principal) {}
-    // can be testable the pricipal does not deactivate himself
-
-    // public String generateToken(String email, String password) {}
-    // can be testable if generated token has all valid properties claims, username, authority roles
-
-    //private static UserResponseDto entityToResponseDto(User user, Set<String> stringRoles) {}
-    // can be testable for checking if the fileds of the entity is equal to dtos fields
+    @AfterEach
+    public void tearDown() {
+        principal = null;
+        userUser = null;
+        adminUser = null;
+        userRole = null;
+        adminRole = null;
+    }
 
     @Test
     @DisplayName("createNewUser: Should save user with USER role and return token")
@@ -198,7 +184,7 @@ public class UserServiceTest {
         Mockito.verify(userRepository).save(any(User.class));
     }
 
-    // --- 4. deleteUserByEmail EXPECTATIONS --- should look at scennario not to do it second time
+    // --- 4. deleteUserByEmail EXPECTATIONS --- should look at scenario not to do it second time
 
     @Test
     @DisplayName("deleteUserByEmail: Should return UserResponseDto")
@@ -217,7 +203,6 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findByEmail(targetEmail)).thenReturn(Optional.of(userUser));
         Mockito.when(userRepository.findByEmail(adminEmail)).thenReturn(Optional.of(adminUser));
-//        Mockito.when(roleRepository.findAll()).thenReturn(List.of(userRole, adminRole));
 
         // 3. Act
         UserResponseDto result = userService.deleteUserByEmail(targetEmail, tmp_principal);
