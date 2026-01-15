@@ -1,6 +1,5 @@
 package com.edu.film_database.service;
 
-import com.edu.film_database.config.JwtUtil;
 import com.edu.film_database.dto.request.CreateReviewRequestDto;
 import com.edu.film_database.dto.request.UpdateReviewRequestDto;
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
@@ -15,7 +14,6 @@ import com.edu.film_database.model.User;
 import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
 import com.edu.film_database.repo.UserRepository;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
