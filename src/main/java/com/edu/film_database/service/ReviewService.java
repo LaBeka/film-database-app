@@ -55,9 +55,12 @@ public class ReviewService {
     public List<FilmReviewResponseDto> getByUserName(String email){
         Optional<User> user_tmp = user_repo.findByEmail(email);
         List<Film> film_tmp = film_repo.findAll();
-        user_tmp.ifPresent(user -> film_tmp.stream()
-                .map(film -> convertFromUserFilms(user, film)).toList());
-        throw new UserNotFoundException("Cannot find the user named " + user_tmp.get().getUsername());
+
+        if(user_tmp.isPresent()){
+            return film_tmp.stream().map(film -> convertFromUserFilms(user_tmp.get(), film)).toList();
+        }
+
+        throw new UserNotFoundException("Cannot find the user with email " + email);
     }
 
     private FilmReviewResponseDto convertFromUserFilms(User user, Film film){

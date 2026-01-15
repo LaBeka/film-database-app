@@ -52,10 +52,10 @@ public class GetReviewByFilmTestC {
 
     @BeforeEach
     public void setUp() {
-        role_repo.deleteAll();
-        user_repo.deleteAll();
-        film_repo.deleteAll();
         review_repo.deleteAll();
+        film_repo.deleteAll();
+        user_repo.deleteAll();
+        role_repo.deleteAll();
 
         role = new Role();
         role.setName("USER");

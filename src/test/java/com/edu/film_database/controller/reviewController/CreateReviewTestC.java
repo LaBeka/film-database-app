@@ -1,5 +1,6 @@
 package com.edu.film_database.controller.reviewController;
 
+import com.edu.film_database.dto.request.CreateReviewRequestDto;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
 import com.edu.film_database.model.Role;
@@ -8,32 +9,35 @@ import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
 import com.edu.film_database.repo.RoleRepository;
 import com.edu.film_database.repo.UserRepository;
+import com.sun.security.auth.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
 @SpringBootTest(properties = "spring.security.enabled=false")
 @AutoConfigureMockMvc(addFilters = false)
-public class GetReviewByUserTestC {
+public class CreateReviewTestC {
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,9 +59,13 @@ public class GetReviewByUserTestC {
     private User user;
     private Film film;
     private Review review;
+    private CreateReviewRequestDto dtoOk;
+    private CreateReviewRequestDto dtoError;
+    private Principal principal;
 
     @BeforeEach
     public void setUp() {
+
         review_repo.deleteAll();
         film_repo.deleteAll();
         user_repo.deleteAll();
@@ -79,7 +87,7 @@ public class GetReviewByUserTestC {
 
         Authentication auth =
                 new UsernamePasswordAuthenticationToken(
-                        "user", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                        "testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -97,39 +105,40 @@ public class GetReviewByUserTestC {
         review.setUser(user);
         review.setFilm(film);
         review_repo.save(review);
+
+        dtoOk = new CreateReviewRequestDto("testFilm", 5, "test-text-2");
+        dtoError = new CreateReviewRequestDto("notTestFilm", 5, "test-text-2");
+        principal = new UserPrincipal("testUser@somedomain.com");
     }
 
     @Test
-    @DisplayName("getReviewByUser with review by specified user present," +
-            " should return status 200 and the review")
-    public void getReviewByUserPresent() throws Exception {
-        mockMvc.perform(get("/api/review/user/getByUser/testUser@somedomain.com"))
+    @DisplayName("create review with film present, should return status 200 and message")
+    public void createReviewFilmPresent() throws Exception {
+        review_repo.deleteAll();
+
+        mockMvc.perform(post("/api/review/user/createReview").contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(dtoOk))
+                        .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Review for film testFilm has been added"));
+
+        mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
+                .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text-2"))
                 .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
     }
 
     @Test
-    @DisplayName("getReviewByUser with review by specified user not present, " +
-            "should retrun status 404 and message")
-    public void getReviewByUserInvalidUser() throws Exception {
-        mockMvc.perform(get("/api/review/user/getByUser/notTestUser@somedomain.com"))
+    @DisplayName("create review with no matching film present, should return status 404 and message")
+    public void createReviewFilmNotPresent() throws Exception {
+        mockMvc.perform(post("/api/review/user/createReview").contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(dtoError))
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
-                        .value("Cannot find the user with email notTestUser@somedomain.com"));
+                        .value("Cannot find the film named " + dtoError.getFilmTitle()));
     }
-
-    @Test
-    @DisplayName("getReviewByUser with review by specified user not present," +
-            " should return status 200 and no review")
-    public void getReviewByUserEmpty() throws Exception {
-        review_repo.deleteAll();
-
-        mockMvc.perform(get("/api/review/user/getByUser/testUser@somedomain.com"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews").isEmpty());
-    }
-
 }

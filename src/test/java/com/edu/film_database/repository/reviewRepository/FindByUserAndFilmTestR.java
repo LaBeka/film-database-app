@@ -1,4 +1,4 @@
-package com.edu.film_database.controller.reviewController;
+package com.edu.film_database.repository.reviewRepository;
 
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
@@ -8,30 +8,24 @@ import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
 import com.edu.film_database.repo.RoleRepository;
 import com.edu.film_database.repo.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
-@SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
-public class GetAllReviewsTestC {
-
-    @Autowired
-    private MockMvc mockMvc;
-
+@DataJpaTest
+public class FindByUserAndFilmTestR
+{
     @Autowired
     private RoleRepository role_repo;
 
@@ -44,19 +38,14 @@ public class GetAllReviewsTestC {
     @Autowired
     private ReviewRepository review_repo;
 
-    //Test data
+    //test-data
     private Role role;
     private User user;
     private Film film;
     private Review review;
 
     @BeforeEach
-    public void setUp() {
-        review_repo.deleteAll();
-        film_repo.deleteAll();
-        user_repo.deleteAll();
-        role_repo.deleteAll();
-
+    public void setUp(){
         role = new Role();
         role.setName("USER");
         role_repo.save(role);
@@ -86,24 +75,38 @@ public class GetAllReviewsTestC {
         review_repo.save(review);
     }
 
-    @Test
-    @DisplayName("getAllReviews with 1 review present, should return status 200 and the review")
-    public void getAllReviewsPresent() throws Exception {
-        mockMvc.perform(get("/api/review/public/getAllReviews"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
-                .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
-    }
+    @AfterEach
+    public void clean(){
+        role = null;
+        user = null;
+        film = null;
+        review = null;
 
-    @Test
-    @DisplayName("getAllReviews with no reviews present, should return status 200 and no reviews")
-    public void getAllReviewsEmpty() throws Exception {
         review_repo.deleteAll();
-        mockMvc.perform(get("/api/review/public/getAllReviews"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews").isEmpty());
-
+        film_repo.deleteAll();
+        user_repo.deleteAll();
+        role_repo.deleteAll();
     }
+
+    @Test
+    @DisplayName("FindByUserAndFilm with matching review present, " +
+            "should return the matching review")
+    public void findByUserAndFilmPresent(){
+        List<Review> result = review_repo.findByUserAndFilm(user, film);
+
+        assertEquals(1, result.size());
+        assertEquals(review.getText(), result.get(0).getText());
+        assertEquals(5, result.get(0).getScore());
+    }
+
+    @Test
+    @DisplayName("FindByUserAndFilm with no matching review present, " +
+            "should return empty list")
+    public void findByUserAndFilmNotPresent(){
+        review_repo.deleteAll();
+        List<Review> result = review_repo.findByUserAndFilm(user, film);
+
+        assertEquals(0, result.size());
+    }
+
 }
