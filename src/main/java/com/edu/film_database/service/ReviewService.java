@@ -77,6 +77,7 @@ public class ReviewService {
     private ReviewResponseDto getReviewsUserFilm(int id){
         Review review_tmp = review_repo.findById(id).get();
         return new ReviewResponseDto(
+                review_tmp.getId(),
                 review_tmp.getUser().getUsername(),
                 review_tmp.getText(),
                 review_tmp.getDate(),
@@ -101,6 +102,7 @@ public class ReviewService {
 
     private ReviewResponseDto convertFromReview(Review review){
         return new ReviewResponseDto(
+                review.getId(),
                 review.getUser().getUsername(),
                 review.getText(),
                 review.getDate(),

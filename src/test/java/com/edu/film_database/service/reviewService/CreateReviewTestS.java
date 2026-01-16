@@ -77,7 +77,7 @@ public class CreateReviewTestS {
         review.setFilm(film);
 
         response_r = new ArrayList<>();
-        response_r.add(new ReviewResponseDto(user.getUsername(), review.getText(),
+        response_r.add(new ReviewResponseDto(review.getId(), user.getUsername(), review.getText(),
                 review.getDate(), review.getScore()));
 
         response_f = new ArrayList<>();
