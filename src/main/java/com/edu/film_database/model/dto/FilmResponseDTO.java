@@ -5,6 +5,7 @@ import java.util.List;
 public class FilmResponseDTO {
 
     private int id;
+    int releaseYear;
     String title;
     String genre;
     List<String> cast;
@@ -18,8 +19,9 @@ public class FilmResponseDTO {
     public FilmResponseDTO() {
     }
 
-    public FilmResponseDTO(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> languages, double aspectRatio, String colorStatus, String cameraUsed) {
+    public FilmResponseDTO(int id, int releaseYear, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> languages, double aspectRatio, String colorStatus, String cameraUsed) {
         this.id = id;
+        this.releaseYear = releaseYear;
         this.title = title;
         this.genre = genre;
         this.cast = cast;
@@ -45,6 +47,14 @@ public class FilmResponseDTO {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getReleaseDate() {
+        return releaseYear;
+    }
+
+    public void setReleaseDate(int releaseDate) {
+        this.releaseYear = releaseDate;
     }
 
     public String getGenre() {

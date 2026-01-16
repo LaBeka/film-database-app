@@ -13,6 +13,7 @@ public class Film {
     int id;
 
     String title;
+    int releaseYear;
     String genre;
     List<String> cast;
     int ageRestriction;
@@ -26,9 +27,10 @@ public class Film {
     @JsonBackReference
     private List<Review> reviews;
 
-    public Film(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> language, double aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
+    public Film(int id, String title, int releaseYear, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> languages, double aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
         this.id = id;
         this.title = title;
+        this.releaseYear = releaseYear;
         this.genre = genre;
         this.cast = cast;
         this.ageRestriction = ageRestriction;
@@ -58,6 +60,20 @@ public class Film {
     public void setTitle(String title) {
         this.title = title;
     }
+
+
+    public int getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(int releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public void setLanguages(List<String> languages) {
+        this.languages = languages;
+    }
+
 
     public String getGenre() {
         return genre;
