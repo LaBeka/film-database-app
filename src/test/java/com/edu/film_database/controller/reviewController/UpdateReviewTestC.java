@@ -126,7 +126,7 @@ public class UpdateReviewTestC {
 
     @Test
     @DisplayName("UpdateReview by user with an existing review by the user," +
-            " should return status 200 and message")
+            " should update the review and return status 200 and message")
     public void updateReviewPresent() throws Exception {
         mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
@@ -165,7 +165,7 @@ public class UpdateReviewTestC {
     }
 
     @Test
-    @DisplayName("UpdateReview by user with review by other user present," +
+    @DisplayName("UpdateReview by user trying to update review by other user," +
             " should return status 400 and message")
     public void updateReviewNotByUser() throws Exception {
         Authentication auth =
@@ -183,5 +183,4 @@ public class UpdateReviewTestC {
                 .andExpect(jsonPath("$.message")
                         .value("Cannot change other users review"));
     }
-
 }

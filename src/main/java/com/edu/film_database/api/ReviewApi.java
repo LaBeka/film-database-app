@@ -30,11 +30,11 @@ public interface ReviewApi {
     public ResponseEntity<FilmReviewResponseDto> getReviewByFilm(
             @PathVariable String filmTitle);
 
-    @GetMapping("user/getByUser/{userName}")
+    @GetMapping("user/getByUser/{email}")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "List of all the reviews base on specific user")
     public ResponseEntity<List<FilmReviewResponseDto>> getReviewByUser(
-            @PathVariable String userName);
+            @PathVariable String email);
 
     @PostMapping("user/createReview")
     @PreAuthorize("hasRole('USER')")

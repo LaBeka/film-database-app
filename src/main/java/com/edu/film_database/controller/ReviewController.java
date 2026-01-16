@@ -20,7 +20,6 @@ public class ReviewController implements ReviewApi {
         this.service = service;
     }
 
-
     @Override
     public ResponseEntity<List<FilmReviewResponseDto>> getAllReviews(){
         return ResponseEntity.ok(service.getAllReviews());
@@ -34,8 +33,8 @@ public class ReviewController implements ReviewApi {
 
     @Override
     public ResponseEntity<List<FilmReviewResponseDto>> getReviewByUser(
-            @PathVariable String userName){
-        return ResponseEntity.ok(service.getByUserName(userName));
+            @PathVariable String email){
+        return ResponseEntity.ok(service.getByUserName(email));
     }
 
     @Override

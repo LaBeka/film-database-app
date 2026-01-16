@@ -42,12 +42,15 @@ VALUES ('ADMIN'),
 
 INSERT INTO users(user_name, email, password, full_name, age, currently_active)
 VALUES ('jdoe', 'john@example.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMsgGvQ4KkIvCICq2L/a', 'John Doe', 28, true),
-       ('asmith', 'alice@example.com', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2GYfAGFBue2PzV5S3nDX1N9vB9q.i5.', 'Alice Smith', 32, true),
-       ('user', 'user@exe.com', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2GYfAGFBue2PzV5S3nDX1N9vB9q.i5.', 'User Alice', 32, false);
+       ('asmith', 'alice@example.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMsgGvQ4KkIvCICq2L/a', 'Alice Smith', 32, true),
+       ('user', 'user@exe.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMsgGvQ4KkIvCICq2L/a', 'User Alice', 32, false);
 
 -- Assign Roles
 -- John is a USER (1, 1), Alice is an USER and ADMIN (2, 1), (2, 2)
 -- User not active is user and admin (3, 1), (3, 2);
+
+--John -- pass
+--Alice --
 INSERT INTO users_roles(user_id, role_id)
 VALUES (1, 1),
        (2, 1),
@@ -55,9 +58,11 @@ VALUES (1, 1),
        (3, 1),
        (3, 2);
 
+INSERT INTO films(title, age_restriction, aspect_ratio)
+VALUES("testfilm1", 15, 2.2), ("testfilm2", 15, 2.2);
+
 -- Insert Reviews
-INSERT INTO reviews (text, date, score)
+INSERT INTO reviews (text, date, score, film_id, user_id)
 VALUES
-    ('Amazing movie!', "2026-01-01", 1),
-    ('I didnt really like the ending.', "2026-01-02", 1),
-    ('A masterpiece of cinema.', "2026-01-03", 2);
+    ('Amazing movie!', "2026-01-01", 1, 1, 3),
+    ('A masterpiece of cinema.', "2026-01-03", 2, 2, 3);

@@ -57,7 +57,9 @@ public class ReviewService {
         List<Film> film_tmp = film_repo.findAll();
 
         if(user_tmp.isPresent()){
-            return film_tmp.stream().map(film -> convertFromUserFilms(user_tmp.get(), film)).toList();
+            return film_tmp.stream()
+                    .map(film -> convertFromUserFilms(
+                            user_tmp.get(), film)).toList();
         }
 
         throw new UserNotFoundException("Cannot find the user with email " + email);
