@@ -49,8 +49,8 @@ public interface UserApi {
             Principal principal);
 
     @PostMapping("/updateUserToAdmin/{email}")
-    @Operation(summary = "Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict exception.")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Operation(summary = "Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict exception. Available for role: ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<UserResponseDto> updateUserRoleAdmin(
             @Email(message = "Email format is invalid") @PathVariable String email,
             Principal principal);

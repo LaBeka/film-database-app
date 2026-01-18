@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         com.edu.film_database.model.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User by provided email: " + email + " not found."));
 
-        user.getRoles().stream().forEach(g-> System.out.println(g.getName()));
+//        user.getRoles().stream().forEach(g-> System.out.println(g.getName()));
 
         User userdetails = new User(user.getEmail(),
                 user.getPassword(),
@@ -28,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                         .stream()
                         .map(role -> new SimpleGrantedAuthority(role.getName()))
                         .toList());
-        System.out.println(userdetails.getPassword() + userdetails.getUsername());
+//        System.out.println(userdetails.getPassword() + userdetails.getUsername());
         return userdetails;
     }
 }

@@ -10,19 +10,19 @@ import com.edu.film_database.repo.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,58 +53,42 @@ public class UserService {
 
         return users.stream()
                 .filter(u -> u.isCurrentlyActive())
-                .map(u -> {
-                    // Convert Set<Role> to Set<String>
-                    Set<String> stringRoles = u.getRoles().stream()
-                            .map(role -> role.getName()) // or role.getAuthority(), etc.
-                            .collect(Collectors.toSet());
-                    return entityToResponseDto(u, stringRoles);
-                })
+                .map(u ->  entityToResponseDto(u))
                 .toList();
     }
 
     public UserResponseDto getUserById(int id) {
         User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User by provided id not found"));
-
-        Set<String> stringRoles = user.getRoles().stream()
-                .map(role -> role.getName()) // or role.getAuthority(), etc.
-                .collect(Collectors.toSet());
-
-        return entityToResponseDto(user, stringRoles);
+        return entityToResponseDto(user);
     }
 
     public UserResponseDto getUserByEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
-
-        Set<String> stringRoles = user.getRoles().stream()
-                .map(role -> role.getName()) // or role.getAuthority(), etc.
-                .collect(Collectors.toSet());
-
-        return entityToResponseDto(user, stringRoles);
+        return entityToResponseDto(user);
     }
 
     public String createNewUser(UserRequestDto dto) {
-        Set<Role> userRole = roleRepository.findAll().stream().filter(r -> r.getName().equals("USER")).collect(Collectors.toSet());
 
-        Optional<User> user = userRepository.findByEmail(dto.getEmail());
-
-        if(user.isEmpty()) {
-            User newUser = User.builder()
-                    .fullName(dto.getFullName())
-                    .username(dto.getUsername())
-                    .email(dto.getEmail())
-                    .password(encoder.encode(dto.getPassword()))
-                    .age(dto.getAge())
-                    .currentlyActive(true)
-                    .roles(userRole)
-                    .build();
-            User saved = userRepository.save(newUser);
-            user = Optional.of(saved);
-        } else {
-            throw new EntityExistsException("User with given email already exists, give another email.");
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new EntityExistsException("User with given email already exists.");
         }
 
-        return generateToken(user.get().getEmail(), user.get().getPassword());
+        // 2. Fetch Role safely from DB (Don't load all roles)
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new EntityNotFoundException("Default Role 'USER' not found in database"));
+
+        User newUser = User.builder()
+                .fullName(dto.getFullName())
+                .username(dto.getUserName())
+                .email(dto.getEmail())
+                .password(encoder.encode(dto.getPassword()))
+                .age(dto.getAge())
+                .currentlyActive(true)
+                .roles(Set.of(userRole))
+                .build();
+        User savedUser = userRepository.save(newUser);
+
+        return generateToken(savedUser.getEmail(), dto.getPassword());
     }
 
     public UserResponseDto updateUserData(UserRequestDto dto, Principal principal) {
@@ -113,23 +97,19 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
 
         if(!authorizedUser.getEmail().equals(dto.getEmail())) {
-            throw new EntityNotFoundException("Authenticated user's email does not match with provided email. You can update only your own data. ");
-        }
-        Set<String> stringRoles = user.getRoles().stream()
-                .map(role -> role.getName()) // or role.getAuthority(), etc.
-                .collect(Collectors.toSet());
+            throw new EntityNotFoundException("Authenticated user's email does not match with provided email. You can update only your own data.");        }
 
         if(!user.isCurrentlyActive()) {
             throw new EntityNotFoundException("User is removed from db.");
         }
-        user.setUsername(dto.getUsername());
+        user.setUsername(dto.getUserName());
         user.setPassword(encoder.encode(dto.getPassword()));
         user.setFullName(dto.getFullName());
         user.setAge(dto.getAge());
         user.setCurrentlyActive(true);
         userRepository.save(user);
 
-        return entityToResponseDto(user, stringRoles);
+        return entityToResponseDto(user);
     }
 
     public UserResponseDto updateUserRole(String email, Principal principal) {
@@ -156,12 +136,7 @@ public class UserService {
             user.setRoles(roles);
             userRepository.save(user);
         }
-
-        Set<String> stringRoles = user.getRoles().stream()
-                .map(role -> role.getName()) // or role.getAuthority(), etc.
-                .collect(Collectors.toSet());
-
-        return entityToResponseDto(user, stringRoles);
+        return entityToResponseDto(user);
     }
 
     public UserResponseDto deleteUserByEmail(String email, Principal principal) {
@@ -177,19 +152,18 @@ public class UserService {
         }
         user.setCurrentlyActive(false);
         userRepository.save(user);
-        Set<String> stringRoles = user.getRoles().stream()
-                .map(role -> role.getName()) // or role.getAuthority(), etc.
-                .collect(Collectors.toSet());
-        return entityToResponseDto(user, stringRoles);
+
+        return entityToResponseDto(user);
     }
 
     public String generateToken(String email, String password) {
+//        System.out.println("From userservice: password: " +  password);
         Authentication auth = null;
         try {
             auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password));
         } catch (AuthenticationException e) {
-            throw new EntityNotFoundException("User not found");
+            throw new UsernameNotFoundException("User not found by given email: '" + email + "' and password: '" + password +"'");
         }
         UserDetails user = userDetailsService.loadUserByUsername(auth.getName());
         String token = jwtUtil.generateToken(user);
@@ -197,8 +171,13 @@ public class UserService {
         return token;
     }
 
+    public UserResponseDto entityToResponseDto(User user) {
+        Set<String> stringRoles = Optional.ofNullable(user.getRoles()) // Handles null
+                .orElse(Collections.emptySet()) // Uses empty set if null
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
 
-    private static UserResponseDto entityToResponseDto(User user, Set<String> stringRoles) {
         return UserResponseDto.builder()
                 .id(user.getId())
                 .userName(user.getUsername())

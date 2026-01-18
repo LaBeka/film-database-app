@@ -13,7 +13,7 @@ public class Film {
 
     String title;
     String genre;
-    List<String> cast;
+    List<String> casta;
     int ageRestriction;
     List<String> awards;
     List<String> langusges;
@@ -25,7 +25,7 @@ public class Film {
         this.id = id;
         this.title = title;
         this.genre = genre;
-        this.cast = cast;
+        this.casta = cast;
         this.ageRestriction = ageRestriction;
         this.awards = awards;
         this.langusges = langusges;
@@ -62,11 +62,11 @@ public class Film {
     }
 
     public List<String> getCast() {
-        return cast;
+        return casta;
     }
 
     public void setCast(List<String> cast) {
-        this.cast = cast;
+        this.casta = cast;
     }
 
     public int getAgeRestriction() {

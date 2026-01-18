@@ -14,7 +14,7 @@ import lombok.*;
 public class UserRequestDto {
 
     @NotBlank(message = "User name is required")
-    private String username;
+    private String userName;
 
     @NotBlank(message = "Full name is required")
     private String fullName;

@@ -42,8 +42,8 @@ VALUES ('ADMIN'),
 
 INSERT INTO users(user_name, email, password, full_name, age, currently_active)
 VALUES ('jdoe', 'john@example.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMsgGvQ4KkIvCICq2L/a', 'John Doe', 28, true),
-       ('asmith', 'alice@example.com', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2GYfAGFBue2PzV5S3nDX1N9vB9q.i5.', 'Alice Smith', 32, true),
-       ('user', 'user@exe.com', '$2a$10$8.UnVuG9HHgffUDAlk8Kn.2GYfAGFBue2PzV5S3nDX1N9vB9q.i5.', 'User Alice', 32, false);
+       ('asmith', 'alice@example.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMsgGvQ4KkIvCICq2L/a', 'Alice Smith', 32, true),
+       ('user', 'user@exe.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMsgGvQ4KkIvCICq2L/a', 'User Alice', 32, false);
 
 -- Assign Roles
 -- John is a USER (1, 1), Alice is an USER and ADMIN (2, 1), (2, 2)

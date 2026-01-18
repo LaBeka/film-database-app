@@ -11,7 +11,6 @@ import com.edu.film_database.service.CustomUserDetailsService;
 import com.edu.film_database.service.UserService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +24,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.security.Principal;
@@ -87,26 +86,22 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("createNewUser: Should save user with USER role and return token")
+    @DisplayName("createNewUser: Should save user with USER role and hashed password and return token")
     void createNewUser_Success() {
         UserRequestDto dto = new UserRequestDto("newbie", "Fullname User", "new@email.com", "pass",  20);
 
-        Mockito.when(roleRepository.findAll()).thenReturn(List.of(userRole, adminRole));
+        Mockito.when(roleRepository.findByName("USER")).thenReturn(Optional.of(userRole));
         Mockito.when(userRepository.findByEmail("new@email.com")).thenReturn(Optional.empty());
         Mockito.when(encoder.encode(anyString())).thenReturn("hashed");
 
-        // capture the user being saved
         Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Security Mocks
         Authentication auth = Mockito.mock(Authentication.class);
         Mockito.when(authenticationManager.authenticate(any())).thenReturn(auth);
         Mockito.when(jwtUtil.generateToken(any())).thenReturn("fake-jwt-token");
 
-        // Act
         String token = userService.createNewUser(dto);
 
-        // Verification: This is where you check the specific fields checks email, user(default) role, password is hashed and active == true
         Mockito.verify(userRepository).save(argThat(user ->
                 user.getEmail().equals("new@email.com") &&
                         user.getRoles().contains(userRole) &&
@@ -118,26 +113,18 @@ public class UserServiceTest {
     @Test
     @DisplayName("createNewUser: Should throw EntityExistsException when email is taken")
     void createNewUser_ThrowsException_WhenEmailExists() {
-        // 1 Create a DTO with an email that already exists in our "system"
         UserRequestDto dto = new UserRequestDto("newbie", "Fullname User", "existing@email.com", "pass", 20);
 
-        // Create a dummy user object to represent the "existing" person in the DB
         User existingUser = User.builder().email("existing@email.com").build();
 
-        // STUBBING: Tell the Proxy (Mock) to return the existing user instead of Optional.empty()
         Mockito.when(userRepository.findByEmail("existing@email.com"))
                 .thenReturn(Optional.of(existingUser));
 
-        // 2. ACT & ASSERT : We expect the call to result in an EntityExistsException
         EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
             userService.createNewUser(dto);
         });
 
-        // Verify the error message inside the exception is correct
-        assertEquals("User with given email already exists, give another email.", exception.getMessage());
-
-        // 3. VERIFY (The "Safety Check")
-        // Ensure that userRepository.save() was NEVER called because the code should have stopped
+        assertEquals("User with given email already exists.", exception.getMessage());
         Mockito.verify(userRepository, Mockito.never()).save(any(User.class));
     }
 
@@ -147,7 +134,6 @@ public class UserServiceTest {
     @DisplayName("updateUserData: Should throw exception when updating someone else's data")
     void updateUserData_Forbidden() {
         UserRequestDto dto = new UserRequestDto("SomeUser", "Hacker", "email@email.com", "pass",  20);
-        // Logged user is admin@email.com, trying to update victim@email.com
         Mockito.when(userRepository.findByEmail("admin@email.com")).thenReturn(Optional.of(adminUser));
         Mockito.when(userRepository.findByEmail("email@email.com")).thenReturn(Optional.of(userUser));
 
@@ -157,14 +143,11 @@ public class UserServiceTest {
     @Test
     @DisplayName("updateUserRole: Should increase role count to 2 when adding ADMIN")
     void updateUserRole_Promotion() {
-        // 1. Setup: Target user is "user@email.com"
         String targetEmail = "user@email.com";
         String adminEmail = "admin@email.com";
 
-        // The user being promoted
         userUser.setEmail(targetEmail);
         userUser.setCurrentlyActive(true);
-        // The admin doing the promotion
         User adminUser = User.builder().email(adminEmail).currentlyActive(true).build();
         Principal tmp_principal = new UsernamePasswordAuthenticationToken(
                 adminEmail, null);
@@ -173,10 +156,8 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByEmail(adminEmail)).thenReturn(Optional.of(adminUser));
         Mockito.when(roleRepository.findAll()).thenReturn(List.of(userRole, adminRole));
 
-        // 3. Act
         UserResponseDto result = userService.updateUserRole(targetEmail, tmp_principal);
 
-        // 4. Assert
         assertNotEquals(adminEmail, result.getEmail());
         assertTrue(result.isCurrentlyActive());
         assertEquals(2, result.getRoles().size());
@@ -189,11 +170,9 @@ public class UserServiceTest {
     @Test
     @DisplayName("deleteUserByEmail: Should return UserResponseDto")
     void deleteUser_success() {
-        // 1. Setup: Target user is "user@email.com"
         String targetEmail = "user@email.com";
         String adminEmail = "admin@email.com";
 
-        // The user being promoted
         userUser.setEmail(targetEmail);
         userUser.setCurrentlyActive(true);
         // The admin doing the promotion
@@ -204,16 +183,11 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByEmail(targetEmail)).thenReturn(Optional.of(userUser));
         Mockito.when(userRepository.findByEmail(adminEmail)).thenReturn(Optional.of(adminUser));
 
-        // 3. Act
         UserResponseDto result = userService.deleteUserByEmail(targetEmail, tmp_principal);
-        // 4. Assert
         assertNotEquals(adminEmail, result.getEmail()); // Correct
-        // IMPORTANT: result.isCurrentlyActive() should be FALSE now
         assertFalse(result.isCurrentlyActive(), "User should be deactivated");
-        // Verify the DB save was called
         Mockito.verify(userRepository).save(userUser);
 
-        // Check that the object passed to save was indeed deactivated
         assertFalse(userUser.isCurrentlyActive());
     }
 
@@ -222,7 +196,6 @@ public class UserServiceTest {
     void deleteUser_SelfDestructPrevention() {
         String selfEmail = "admin@email.com";
 
-        // Setup: Both the target and the authorized user are the same
         adminUser.setEmail(selfEmail);
         adminUser.setCurrentlyActive(true);
 
@@ -230,7 +203,6 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findByEmail(selfEmail)).thenReturn(Optional.of(adminUser));
 
-        // Act & Assert
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                 userService.deleteUserByEmail(selfEmail, selfPrincipal)
         );
@@ -239,12 +211,34 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("generateToken: Should return a valid JWT when credentials are correct")
+    void generateToken_Success() {
+        String email = "test@email.com";
+        String password = "password123";
+        String mockToken = "mocked-jwt-token";
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn(email);
+        Mockito.when(authenticationManager.authenticate(any())).thenReturn(authentication);
+
+        UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
+        Mockito.when(userDetailsService.loadUserByUsername(email))
+                .thenReturn(mockUserDetails);
+
+        Mockito.when(jwtUtil.generateToken(mockUserDetails))
+                .thenReturn(mockToken);
+        String resultToken = userService.generateToken(email, password);
+
+        assertEquals(mockToken, resultToken);
+    }
+
+    @Test
     @DisplayName("generateToken: Should throw EntityNotFoundException on Auth failure")
     void generateToken_AuthFailure() {
         Mockito.when(authenticationManager.authenticate(any()))
                 .thenThrow(new BadCredentialsException("Wrong pass"));
 
-        assertThrows(EntityNotFoundException.class, () ->
+        assertThrows(UsernameNotFoundException.class, () ->
                 userService.generateToken("test@email.com", "wrong")
         );
     }
@@ -261,4 +255,42 @@ public class UserServiceTest {
                 userService.deleteUserByEmail("some@email.com", principal)
         );
     }
+
+    @Test
+    @DisplayName("entityToResponseDto: Should correctly map all fields from User to DTO")
+    void entityToResponseDto_Success() {
+        UserResponseDto result = userService.entityToResponseDto(userUser);
+
+        assertNotNull(result, "Resulting DTO should not be null");
+        assertEquals(userUser.getId(), result.getId());
+        assertEquals(userUser.getUsername(), result.getUserName());
+        assertEquals(userUser.getEmail(), result.getEmail());
+        assertEquals(userUser.getFullName(), result.getFullName()); // Assuming testUser has fullName set in setup if applicable, otherwise verifies null matches null
+        assertEquals(userUser.isCurrentlyActive(), result.isCurrentlyActive());
+        assertEquals(1, result.getRoles().size());
+        assertTrue(result.getRoles().contains("USER"));
+    }
+
+    @Test
+    @DisplayName("entityToResponseDto: Should map inactive user status, empty roles, nullable (username, full name, age) correctly")
+    void entityToResponseDto_InactiveUser() {
+        User inactiveUser = User.builder()
+                .id(3)
+                .username(null)
+                .email("inactive@email.com")
+                .fullName(null)
+                .currentlyActive(false) // Explicitly false
+                .roles(null)
+                .build();
+        Set<String> roleNames = Set.of("USER");
+
+        UserResponseDto result = userService.entityToResponseDto(inactiveUser);
+
+        assertFalse(result.isCurrentlyActive());
+        assertNotNull(result.getRoles(), "Roles set should never be null");
+        assertTrue(result.getRoles().isEmpty(), "Roles set should be empty");
+        assertNull(result.getFullName());
+        assertNull(result.getUserName());
+    }
+
 }

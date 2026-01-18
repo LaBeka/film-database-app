@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,10 +31,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleEntityExists(EntityNotFoundException ex) {
 
         Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("status", HttpStatus.NOT_FOUND.value());
         body.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -53,10 +54,26 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
 
         ex.getConstraintViolations().forEach(e -> {
-            String fieldName = e.getPropertyPath().toString();
+            // 1. Get the full path (e.g., "login.email")
+            String fullPath = e.getPropertyPath().toString();
+
+            // 2. Extract just the last part (e.g., "email")
+            String fieldName = fullPath.contains(".")
+                    ? fullPath.substring(fullPath.lastIndexOf('.') + 1)
+                    : fullPath;
+
             errors.put(fieldName, e.getMessage());
         });
 
         return ResponseEntity.badRequest().body(errors);
+    }
+    //
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(UsernameNotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 }

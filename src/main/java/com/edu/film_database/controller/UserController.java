@@ -15,15 +15,12 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping(UserApi.API_PATH_DICTIONARY)
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
     private final UserService userService;
 
     @Override
-//    @GetMapping("/get/list")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> response = userService.getAllUser();
         return ResponseEntity.ok(response);
