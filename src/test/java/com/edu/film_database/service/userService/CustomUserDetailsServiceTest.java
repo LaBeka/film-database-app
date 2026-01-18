@@ -34,7 +34,7 @@ public class CustomUserDetailsServiceTest {
 
     @BeforeEach
     public void setup() {
-        role = Role.builder().id(1L).name("USER").build();
+        role = Role.builder().id(1).name("USER").build();
         userEntity = User.builder()
                 .id(1).username("testUser").email("test@email.com")
                 .password("encoded_pass").currentlyActive(true)

@@ -59,8 +59,8 @@ public class UserServiceTest {
 
     @BeforeEach
     public void setup() {
-        userRole = Role.builder().id(1L).name("USER").build();
-        adminRole = Role.builder().id(2L).name("ADMIN").build();
+        userRole = Role.builder().id(1).name("USER").build();
+        adminRole = Role.builder().id(2).name("ADMIN").build();
 
         userUser = User.builder()
                 .id(1).username("testUser").email("test@email.com")
