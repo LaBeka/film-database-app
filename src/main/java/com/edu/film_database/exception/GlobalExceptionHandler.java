@@ -17,23 +17,56 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(FilmNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCourseExists(FilmNotFoundException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCourseExists(ReviewNotFoundException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCourseExists(UserNotFoundException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<Map<String, Object>> handleEntityExists(EntityExistsException ex) {
 
         Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.NOT_FOUND.value());
         body.put("status", HttpStatus.CONFLICT.value());
         body.put("message", ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleEntityExists(EntityNotFoundException ex) {
+    @ExceptionHandler(ReviewNotUsersOwnReviewException.class)
+    public ResponseEntity<Map<String, Object>> handleCourseExists(
+            ReviewNotUsersOwnReviewException ex) {
 
         Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("message", ex.getMessage());
 
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 

@@ -54,7 +54,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/error",
                                 "/api/user/create",
-                                "/api/user/login"
+                                "/api/user/login",
+                                "/api/review/public/getAllReviews",
+                                "/api/review/public/getByFilm/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
