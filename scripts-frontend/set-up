@@ -9,3 +9,5 @@ npx shadcn@latest add form input button card label
  npm install react-hook-form @hookform/resolvers zod
 
  npm run dev
+
+ + npx shadcn@latest add sidebar

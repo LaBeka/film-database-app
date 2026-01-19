@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 const USER_PATH = "/api/user";
 
@@ -23,6 +25,11 @@ export default function LoginPage() {
         defaultValues: { email: "", password: "" },
     });
 
+    interface BackendErrorResponse {
+        status: number;
+        message: string;
+    }
+
     async function onSubmit(values: z.infer<typeof LoginSchema>) {
         try {
             // Backend expects @RequestParam, so we use 'params' in axios
@@ -36,10 +43,23 @@ export default function LoginPage() {
             // Assuming backend returns a plain JWT string
             if (response.data) {
                 localStorage.setItem("token", response.data);
-                router.push("/users"); // Redirect to your dashboard/user list
+                window.dispatchEvent(new Event("storage"));
+                router.push("/");
             }
-        } catch (error) {
-            console.error("Login failed", error);
+        } catch (error: unknown) {
+            // 2. Check if this is an Axios Error
+            const axiosError = error as AxiosError<BackendErrorResponse>;
+
+            if (axiosError.response && axiosError.response.data) {
+                // Now TypeScript knows 'data' has 'message' and 'status'
+                console.error("Backend Status:", axiosError.response.data.status);
+                console.error("Backend Message:", axiosError.response.data.message);
+
+                alert(`Error: ${axiosError.response.data.message}`);
+            } else if (error instanceof Error) {
+                // 3. Fallback for generic JS errors (like network failure)
+                console.error("Network/Generic Error:", error.message);
+            }
         }
     }
 
