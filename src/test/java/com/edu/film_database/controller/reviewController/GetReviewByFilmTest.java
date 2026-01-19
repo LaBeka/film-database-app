@@ -49,6 +49,7 @@ public class GetReviewByFilmTest {
     private User user;
     private Film film;
     private Review review;
+    private int film_tmp;
 
     @BeforeEach
     public void setUp() {
@@ -75,7 +76,7 @@ public class GetReviewByFilmTest {
         film.setTitle("testFilm");
         film.setAgeRestriction(15);
         film.setAspectRatio(2.2);
-        film_repo.save(film);
+        film_tmp = film_repo.save(film).getId();
 
         review = new Review();
         review.setText("test-text");
@@ -91,7 +92,7 @@ public class GetReviewByFilmTest {
     public void getReviewByFilmPresent() throws Exception {
         mockMvc.perform(get("/api/review/public/getByFilm/testFilm"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("testFilm"))
+                .andExpect(jsonPath("$.filmId").value(film_tmp))
                 .andExpect(jsonPath("$.reviews.[0].text").value("test-text"))
                 .andExpect(jsonPath("$.reviews.[0].score").value(5));
     }

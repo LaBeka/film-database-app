@@ -64,6 +64,7 @@ public class DeleteReviewAdminTest {
     private Principal principal;
     private Principal principal_other;
     private UpdateReviewRequestDto dtoOk;
+    private int film_tmp;
 
     @BeforeEach
     public void setUp() {
@@ -111,7 +112,7 @@ public class DeleteReviewAdminTest {
         film.setTitle("testFilm");
         film.setAgeRestriction(15);
         film.setAspectRatio(2.2);
-        film_repo.save(film);
+        film_tmp = film_repo.save(film).getId();
 
         review = new Review();
         review.setText("test-text");
@@ -133,7 +134,7 @@ public class DeleteReviewAdminTest {
     public void deleteReviewAdminPresent() throws Exception {
         mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
+                .andExpect(jsonPath("$.[0].filmId").value(film_tmp))
                 .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
                 .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
 
@@ -143,12 +144,13 @@ public class DeleteReviewAdminTest {
                         .principal(principal)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Specified review for film " +
-                        film.getTitle() + " has been deleted"));
+                .andExpect(jsonPath("$.filmId").value(film_tmp))
+                .andExpect(jsonPath("$.reviews.[0].text").value("test-text"))
+                .andExpect(jsonPath("$.reviews.[0].score").value(5));
 
         mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
+                .andExpect(jsonPath("$.[0].filmId").value(film_tmp))
                 .andExpect(jsonPath("$.[0].reviews").isEmpty());
     }
 
@@ -158,7 +160,7 @@ public class DeleteReviewAdminTest {
     public void deleteReviewAdminNotPresent() throws Exception {
         review_repo.deleteAll();
 
-        mockMvc.perform(delete("/api/review/admin/deleteReview/1")
+        mockMvc.perform(delete("/api/review/admin/deleteReview/" + (film_tmp + 1))
                         .contentType(MediaType.APPLICATION_JSON)
                         .principal(principal)
                         .accept(MediaType.APPLICATION_JSON))

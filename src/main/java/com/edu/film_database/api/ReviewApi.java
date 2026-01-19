@@ -39,20 +39,20 @@ public interface ReviewApi {
     @PostMapping("user/createReview")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Create a new review")
-    public ResponseEntity<String> createReview(@RequestBody CreateReviewRequestDto dto, Principal principal);
+    public ResponseEntity<FilmReviewResponseDto> createReview(@RequestBody CreateReviewRequestDto dto, Principal principal);
 
     @PatchMapping("user/updateReview")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Update an existing review")
-    public ResponseEntity<String> updateReview(@RequestBody UpdateReviewRequestDto dto, Principal principal);
+    public ResponseEntity<FilmReviewResponseDto> updateReview(@RequestBody UpdateReviewRequestDto dto, Principal principal);
 
     @DeleteMapping("user/deleteReview/{index}")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Delete an existing review")
-    public ResponseEntity<String> deleteReviewUser(@PathVariable int index, Principal principal);
+    public ResponseEntity<FilmReviewResponseDto> deleteReviewUser(@PathVariable int index, Principal principal);
 
     @DeleteMapping("admin/deleteReview/{index}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete an existing review")
-    public ResponseEntity<String> deleteReviewAdmin(@PathVariable int index);
+    public ResponseEntity<FilmReviewResponseDto> deleteReviewAdmin(@PathVariable int index);
 }

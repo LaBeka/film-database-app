@@ -84,7 +84,7 @@ public class DeleteReviewUserTest {
                 review.getDate(), review.getScore()));
 
         response_f = new ArrayList<>();
-        response_f.add(new FilmReviewResponseDto(film.getTitle(), response_r));
+        response_f.add(new FilmReviewResponseDto(film.getId(), response_r));
 
         films = new ArrayList<>();
         films.add(film);
@@ -102,10 +102,9 @@ public class DeleteReviewUserTest {
         when(user_repo.findByEmail(principal.getName())).thenReturn(Optional.of(user));
         when(review_repo.findById(1)).thenReturn(Optional.of(review));
 
-        String result = review_service.deleteReviewUser(1, principal);
+        FilmReviewResponseDto result = review_service.deleteReviewUser(1, principal);
 
-        assertEquals(result, "Specified review for film " + film.getTitle() +
-                " has been deleted");
+        assertEquals(result, response_f.get(0));
     }
 
     @Test
