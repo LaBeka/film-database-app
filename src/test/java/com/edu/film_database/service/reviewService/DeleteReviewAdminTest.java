@@ -1,15 +1,17 @@
 package com.edu.film_database.service.reviewService;
 
+import com.edu.film_database.dto.request.UpdateReviewRequestDto;
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
 import com.edu.film_database.dto.response.ReviewResponseDto;
-import com.edu.film_database.exception.FilmNotFoundException;
+import com.edu.film_database.exception.ReviewNotFoundException;
+import com.edu.film_database.exception.ReviewNotUsersOwnReviewException;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
 import com.edu.film_database.model.User;
-import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
+import com.edu.film_database.repo.UserRepository;
 import com.edu.film_database.service.ReviewService;
-import org.junit.jupiter.api.AfterEach;
+import com.sun.security.auth.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +32,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GetByFilmTestS {
+public class DeleteReviewAdminTest {
 
     @Mock
     private ReviewRepository review_repo;
 
     @Mock
-    private FilmRepository film_repo;
+    private UserRepository user_repo;
 
     @Spy
     @InjectMocks
@@ -48,6 +51,10 @@ public class GetByFilmTestS {
     private Film film;
     private Review review;
     private User user;
+    private User other_user;
+    private UpdateReviewRequestDto dto;
+    private Principal principal;
+    private Principal principal_other;
 
 
     @BeforeEach
@@ -57,8 +64,14 @@ public class GetByFilmTestS {
 
         user = new User();
         user.setUsername("testName");
+        user.setEmail("testName@somedomain.com");
+
+        other_user = new User();
+        user.setUsername("testName1");
+        user.setEmail("testName1@somedomain.com");
 
         review = new Review();
+        review.setId(1);
         review.setText("testReview");
         review.setDate(LocalDate.now());
         review.setScore(5);
@@ -74,53 +87,34 @@ public class GetByFilmTestS {
 
         films = new ArrayList<>();
         films.add(film);
-    }
 
-    @AfterEach
-    public void clean(){
-        response_r = null;
-        response_f = null;
-        films = null;
-        film = null;
-        review = null;
-        user = null;
+        dto = new UpdateReviewRequestDto(1, film.getTitle(), review.getScore(), review.getText());
+
+        principal = new UserPrincipal(user.getEmail());
+        principal_other = new UserPrincipal("testName1@somedomain.com");
     }
 
     @Test
-    @DisplayName("GetByFilm with matching review present, should return review")
-    public void getByFilmPresent(){
-        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
-        when(review_repo.findByFilm(film)).thenReturn(List.of(review));
+    @DisplayName("deleteReviewAdmin with specified review present, " +
+            "should return confirmation of the review being deleted")
+    public void deleteReviewAdminPresent(){
+        when(review_repo.findById(1)).thenReturn(Optional.of(review));
 
-        FilmReviewResponseDto result = review_service.getByFilm(film.getTitle());
+        String result = review_service.deleteReviewAdmin(1);
 
-        assertEquals(result, response_f.get(0));
+        assertEquals(result, "Specified review for film " + film.getTitle() +
+                " has been deleted");
     }
 
     @Test
-    @DisplayName("GetGByFilm with film with no reviews present," +
-            " should return filmTitle and no reviews")
-    public void getByFilmNotPresent(){
-        response_f.get(0).getReviews().remove(0);
+    @DisplayName("deleteReviewAdmin with specified review not present, " +
+            "should throw ReviewNotFoundException")
+    public void deleteReviewAdminException(){
+        when(review_repo.findById(1)).thenReturn(Optional.empty());
 
-        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
-        when(review_repo.findByFilm(film)).thenReturn(List.of());
-
-        FilmReviewResponseDto result = review_service.getByFilm(film.getTitle());
-
-        assertEquals(result, response_f.get(0));
-    }
-
-    @Test
-    @DisplayName("GetGByFilm with no matching film present," +
-            " should throw FilmNotFoundException")
-    public void getByFilmException(){
-        response_f.remove(0);
-
-        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.empty());
-
-        FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
-                () -> review_service.getByFilm(film.getTitle()));
-        assertEquals("Cannot find the film named " + film.getTitle(), exception.getMessage());
+        ReviewNotFoundException exception = assertThrows(ReviewNotFoundException.class,
+                () -> review_service.deleteReviewAdmin(1));
+        assertEquals("Cannot delete a review " +
+                "that does not exist", exception.getMessage());
     }
 }

@@ -1,18 +1,18 @@
 package com.edu.film_database.service.reviewService;
 
-import com.edu.film_database.dto.request.UpdateReviewRequestDto;
+import com.edu.film_database.dto.request.CreateReviewRequestDto;
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
 import com.edu.film_database.dto.response.ReviewResponseDto;
 import com.edu.film_database.exception.FilmNotFoundException;
-import com.edu.film_database.exception.ReviewNotFoundException;
-import com.edu.film_database.exception.ReviewNotUsersOwnReviewException;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
 import com.edu.film_database.model.User;
+import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
 import com.edu.film_database.repo.UserRepository;
 import com.edu.film_database.service.ReviewService;
 import com.sun.security.auth.UserPrincipal;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,10 +33,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteReviewUserTestS {
+public class CreateReviewTest {
 
     @Mock
     private ReviewRepository review_repo;
+
+    @Mock
+    private FilmRepository film_repo;
 
     @Mock
     private UserRepository user_repo;
@@ -52,10 +55,8 @@ public class DeleteReviewUserTestS {
     private Film film;
     private Review review;
     private User user;
-    private User other_user;
-    private UpdateReviewRequestDto dto;
+    private CreateReviewRequestDto dto;
     private Principal principal;
-    private Principal principal_other;
 
 
     @BeforeEach
@@ -66,10 +67,6 @@ public class DeleteReviewUserTestS {
         user = new User();
         user.setUsername("testName");
         user.setEmail("testName@somedomain.com");
-
-        other_user = new User();
-        user.setUsername("testName1");
-        user.setEmail("testName1@somedomain.com");
 
         review = new Review();
         review.setId(1);
@@ -89,48 +86,41 @@ public class DeleteReviewUserTestS {
         films = new ArrayList<>();
         films.add(film);
 
-        dto = new UpdateReviewRequestDto(1, film.getTitle(), review.getScore(), review.getText());
+        dto = new CreateReviewRequestDto(film.getTitle(), review.getScore(), review.getText());
 
         principal = new UserPrincipal(user.getEmail());
-        principal_other = new UserPrincipal("testName1@somedomain.com");
+    }
+
+    @AfterEach
+    public void clean(){
+        response_r = null;
+        response_f = null;
+        films = null;
+        film = null;
+        review = null;
+        user = null;
+        dto = null;
     }
 
     @Test
-    @DisplayName("DeleteReviewUser with specified review by specified user present, " +
-            "should return confirmation of the review being deleted")
-    public void deleteReviewUserPresent(){
+    @DisplayName("CreateReview with matching film present, should return confirmation on review added")
+    public void createReviewFilmPresent(){
+        when(film_repo.findByTitle(dto.getFilmTitle())).thenReturn(Optional.of(film));
         when(user_repo.findByEmail(principal.getName())).thenReturn(Optional.of(user));
-        when(review_repo.findById(1)).thenReturn(Optional.of(review));
+        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
 
-        String result = review_service.deleteReviewUser(1, principal);
+        String result = review_service.createReview(principal, dto);
 
-        assertEquals(result, "Specified review for film " + film.getTitle() +
-                " has been deleted");
+        assertEquals(result, "Review for film " + dto.getFilmTitle() + " has been added");
     }
 
     @Test
-    @DisplayName("DeleteReviewUser with specified review not being present, " +
-            "should throw ReviewNotFoundException")
-    public void deleteReviewUserNotPresent(){
-        when(user_repo.findByEmail(principal.getName())).thenReturn(Optional.of(user));
-        when(review_repo.findById(1)).thenReturn(Optional.empty());
+    @DisplayName("CreateReview with no matching film present, should throw FilmNotFoundException")
+    public void createReviewException(){
+        when(film_repo.findByTitle(dto.getFilmTitle())).thenReturn(Optional.empty());
 
-        ReviewNotFoundException exception = assertThrows(ReviewNotFoundException.class,
-                () -> review_service.deleteReviewUser(1, principal));
-        assertEquals("Cannot delete a review " +
-                "that does not exist", exception.getMessage());
+        FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
+                () -> review_service.createReview(principal, dto));
+        assertEquals("Cannot find the film named " + dto.getFilmTitle(), exception.getMessage());
     }
-
-    @Test
-    @DisplayName("DeleteReviewUser with specified review not being by the specified user, " +
-            "should throw ReviewNotUsersOwnReviewException")
-    public void deleteReviewUserException(){
-        when(user_repo.findByEmail(principal_other.getName())).thenReturn(Optional.of(other_user));
-        when(review_repo.findById(1)).thenReturn(Optional.of(review));
-
-        ReviewNotUsersOwnReviewException exception = assertThrows(ReviewNotUsersOwnReviewException.class,
-                () -> review_service.deleteReviewUser(1, principal_other));
-        assertEquals("Cannot delete other users review", exception.getMessage());
-    }
-
 }

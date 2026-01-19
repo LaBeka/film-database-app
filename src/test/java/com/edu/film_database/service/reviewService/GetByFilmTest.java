@@ -2,6 +2,7 @@ package com.edu.film_database.service.reviewService;
 
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
 import com.edu.film_database.dto.response.ReviewResponseDto;
+import com.edu.film_database.exception.FilmNotFoundException;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
 import com.edu.film_database.model.User;
@@ -21,12 +22,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GetAllReviewsTestS {
+public class GetByFilmTest {
 
     @Mock
     private ReviewRepository review_repo;
@@ -84,28 +87,40 @@ public class GetAllReviewsTestS {
     }
 
     @Test
-    @DisplayName("GetAllReviews with review present, should return review")
-    public void getAllReviewsPresent(){
-        when(film_repo.findAll()).thenReturn(films);
+    @DisplayName("GetByFilm with matching review present, should return review")
+    public void getByFilmPresent(){
+        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
         when(review_repo.findByFilm(film)).thenReturn(List.of(review));
 
-        List<FilmReviewResponseDto> result = review_service.getAllReviews();
+        FilmReviewResponseDto result = review_service.getByFilm(film.getTitle());
 
-        assertEquals(result, response_f);
+        assertEquals(result, response_f.get(0));
     }
 
     @Test
-    @DisplayName("GetAllReviews with no review present, should return nothing")
-    public void getAllReviewsEmpty(){
+    @DisplayName("GetGByFilm with film with no reviews present," +
+            " should return filmTitle and no reviews")
+    public void getByFilmNotPresent(){
         response_f.get(0).getReviews().remove(0);
 
-        when(film_repo.findAll()).thenReturn(films);
+        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
         when(review_repo.findByFilm(film)).thenReturn(List.of());
 
-        List<FilmReviewResponseDto> result = review_service.getAllReviews();
+        FilmReviewResponseDto result = review_service.getByFilm(film.getTitle());
 
-        assertEquals(result, response_f);
+        assertEquals(result, response_f.get(0));
     }
 
+    @Test
+    @DisplayName("GetGByFilm with no matching film present," +
+            " should throw FilmNotFoundException")
+    public void getByFilmException(){
+        response_f.remove(0);
 
+        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.empty());
+
+        FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
+                () -> review_service.getByFilm(film.getTitle()));
+        assertEquals("Cannot find the film named " + film.getTitle(), exception.getMessage());
+    }
 }

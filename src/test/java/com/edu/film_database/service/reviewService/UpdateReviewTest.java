@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UpdateReviewTestS {
+public class UpdateReviewTest {
 
     @Mock
     private ReviewRepository review_repo;

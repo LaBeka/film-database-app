@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @DataJpaTest
-public class FindByUserAndFilmTestR
+public class FindByUserAndFilmTest
 {
     @Autowired
     private RoleRepository role_repo;
