@@ -36,6 +36,12 @@ public class UserController implements UserApi {
     }
 
     @Override
+    public ResponseEntity<UserResponseDto> getUserByEmailTest(String email) {
+        UserResponseDto response = userService.getUserByEmail(email);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
     public ResponseEntity<String> createNewUser(UserRequestDto userRequest) {
         String response = userService.createNewUser(userRequest);
         return ResponseEntity.ok(response);

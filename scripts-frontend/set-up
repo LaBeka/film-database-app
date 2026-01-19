@@ -1,0 +1,9 @@
+cd web-app
+
+npx create-next-app@latest web-app --typescript --tailwind --eslint
+
+npx shadcn@latest add form input button card label
+
+ npm install react-hook-form @hookform/resolvers zod
+
+ npm run dev

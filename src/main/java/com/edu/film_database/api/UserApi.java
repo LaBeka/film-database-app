@@ -37,6 +37,10 @@ public interface UserApi {
     @Operation(summary = "Get user by email. Available for role: ADMIN")
     ResponseEntity<UserResponseDto> getUserByEmail(@Email(message = "Email format is invalid") @PathVariable("email") String email);
 
+    @GetMapping("/getTest/email/{email}")
+    @Operation(summary = "Get user by email. Available for role: ADMIN")
+    ResponseEntity<UserResponseDto> getUserByEmailTest(@Email(message = "Email format is invalid") @PathVariable("email") String email);
+
     @PostMapping("/create")
     @Operation(summary = "Create new user with default 'USER' role and send back jwt-token. If email is taken throws Conflict exception. NO ROLE")
     ResponseEntity<String> createNewUser(@Valid @RequestBody UserRequestDto userRequest);
