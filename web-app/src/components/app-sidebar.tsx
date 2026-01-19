@@ -6,19 +6,21 @@ import { FilmIcon, Home, Search, Settings, UserIcon, LogOut } from "lucide-react
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 
 export function AppSidebar() {
-    const [isLoggedIn, setIsLoggedIn] = useState(() => {
-        if (typeof window !== "undefined") {
-            return !!localStorage.getItem("token")
-        }
-        return false
-    })
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const checkToken = () => setIsLoggedIn(!!localStorage.getItem("token"))
         checkToken();
         window.addEventListener("storage", checkToken)
         return () => window.removeEventListener("storage", checkToken)
-    }, [])
+    }, []);
+
+    // 3. Important: Prevent rendering the dynamic menu until mounted
+    if (!mounted) {
+        return null // or a simple skeleton loader
+    }
 
     const handleLogout = () => {
         localStorage.removeItem("token");

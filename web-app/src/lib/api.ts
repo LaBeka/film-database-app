@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Keep '/api' so it uses the Next.js rewrite/proxy we set up
 const api = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: '/api',
     headers: {
         "Content-Type": "application/json",
     },
