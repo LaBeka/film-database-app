@@ -1,9 +1,9 @@
 package com.edu.film_database.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -14,7 +14,7 @@ public interface TestingApi {
 
     String API_TEST_DICTIONARY = "/api/test";
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/")
+    @Operation(summary = "Health check of backend for frontend landing page")
     ResponseEntity<String> getData();
 }

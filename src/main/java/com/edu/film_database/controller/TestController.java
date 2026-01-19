@@ -10,6 +10,6 @@ public class TestController implements TestingApi {
 
     @Override
     public ResponseEntity<String> getData() {
-        return new ResponseEntity<>("Hello form test controller UPDATED!!!!! Beka", HttpStatus.OK);
+        return new ResponseEntity<>("Connection with backend is successful", HttpStatus.OK);
     }
 }
