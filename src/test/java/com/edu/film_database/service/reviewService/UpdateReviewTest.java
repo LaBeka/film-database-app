@@ -87,7 +87,7 @@ public class UpdateReviewTest {
                 review.getDate(), review.getScore()));
 
         response_f = new ArrayList<>();
-        response_f.add(new FilmReviewResponseDto(film.getTitle(), response_r));
+        response_f.add(new FilmReviewResponseDto(film.getId(), response_r));
 
         films = new ArrayList<>();
         films.add(film);
@@ -117,9 +117,9 @@ public class UpdateReviewTest {
         when(user_repo.findByEmail(principal.getName())).thenReturn(Optional.of(user));
         when(review_repo.findById(dto.getReviewIndex())).thenReturn(Optional.of(review));
 
-        String result = review_service.updateReview(principal, dto);
+        FilmReviewResponseDto result = review_service.updateReview(principal, dto);
 
-        assertEquals(result, "Specified review on film " + dto.getFilmTitle() + " has been updated");
+        assertEquals(result, response_f.get(0));
     }
 
     @Test

@@ -70,7 +70,7 @@ public class GetByFilmTest {
                 review.getDate(), review.getScore()));
 
         response_f = new ArrayList<>();
-        response_f.add(new FilmReviewResponseDto(film.getTitle(), response_r));
+        response_f.add(new FilmReviewResponseDto(film.getId(), response_r));
 
         films = new ArrayList<>();
         films.add(film);

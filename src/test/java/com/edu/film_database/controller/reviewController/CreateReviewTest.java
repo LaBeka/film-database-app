@@ -62,6 +62,7 @@ public class CreateReviewTest {
     private CreateReviewRequestDto dtoOk;
     private CreateReviewRequestDto dtoError;
     private Principal principal;
+    private int film_tmp;
 
     @BeforeEach
     public void setUp() {
@@ -96,7 +97,7 @@ public class CreateReviewTest {
         film.setTitle("testFilm");
         film.setAgeRestriction(15);
         film.setAspectRatio(2.2);
-        film_repo.save(film);
+        film_tmp = film_repo.save(film).getId();
 
         review = new Review();
         review.setText("test-text");
@@ -106,8 +107,8 @@ public class CreateReviewTest {
         review.setFilm(film);
         review_repo.save(review);
 
-        dtoOk = new CreateReviewRequestDto("testFilm", 5, "test-text-2");
-        dtoError = new CreateReviewRequestDto("notTestFilm", 5, "test-text-2");
+        dtoOk = new CreateReviewRequestDto(film_tmp, 5, "test-text-2");
+        dtoError = new CreateReviewRequestDto(film_tmp + 1, 5, "test-text-2");
         principal = new UserPrincipal("testUser@somedomain.com");
     }
 
@@ -121,11 +122,13 @@ public class CreateReviewTest {
                         .principal(principal)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Review for film testFilm has been added"));
+                .andExpect(jsonPath("$.filmId").value(film_tmp))
+                .andExpect(jsonPath("$.reviews.[0].text").value("test-text-2"))
+                .andExpect(jsonPath("$.reviews.[0].score").value(5));
 
         mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
+                .andExpect(jsonPath("$.[0].filmId").value(film_tmp))
                 .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text-2"))
                 .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
     }
@@ -139,6 +142,6 @@ public class CreateReviewTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
-                        .value("Cannot find the film named " + dtoError.getFilmTitle()));
+                        .value("Cannot find the film with id " + dtoError.getFilmId()));
     }
 }

@@ -54,9 +54,11 @@ public class ReviewService {
 
     public List<FilmReviewResponseDto> getByUserName(String email){
         Optional<User> user_tmp = user_repo.findByEmail(email);
-        List<Film> film_tmp = film_repo.findAll();
 
         if(user_tmp.isPresent()){
+            List<Film> film_tmp = review_repo.findByUser(user_tmp.get())
+                    .stream().map(review -> review.getFilm()).distinct().toList();
+
             return film_tmp.stream()
                     .map(film -> convertFromUserFilms(
                             user_tmp.get(), film)).toList();
@@ -67,7 +69,7 @@ public class ReviewService {
 
     private FilmReviewResponseDto convertFromUserFilms(User user, Film film){
         return new FilmReviewResponseDto(
-                film.getTitle(),
+                film.getId(),
                 review_repo.findByUserAndFilm(user, film)
                         .stream().map(review ->
                                 getReviewsUserFilm(review.getId())).toList()
@@ -89,13 +91,13 @@ public class ReviewService {
         List<Review> review_tmp = review_repo.findByFilm(film);
         if(!review_tmp.isEmpty()){
             return new FilmReviewResponseDto(
-                    film.getTitle(),
+                    film.getId(),
                     review_tmp.stream()
                             .map(this::convertFromReview).toList()
             );
         }
         return new FilmReviewResponseDto(
-                film.getTitle(),
+                film.getId(),
                 new ArrayList<>()
         );
     }
@@ -110,30 +112,41 @@ public class ReviewService {
         );
     }
 
-    public String createReview(Principal principal, CreateReviewRequestDto dto){
-        Optional<Film> film_tmp = film_repo.findByTitle(dto.getFilmTitle());
+    public FilmReviewResponseDto createReview(Principal principal, CreateReviewRequestDto dto){
+        Optional<Film> film_tmp = film_repo.findById(dto.getFilmId());
+        Review review_tmp;
         if(film_tmp.isPresent()){
-            review_repo.save(
-                    new Review(
-                            dto.getText(),
-                            LocalDate.now(),
-                            dto.getScore(),
-                            user_repo.findByEmail(principal.getName()).get(),
-                            film_repo.findByTitle(film_tmp.get().getTitle()).get())
-            );
-            return "Review for film " + dto.getFilmTitle() + " has been added";
+            review_tmp = review_repo.save(
+                            new Review(
+                                dto.getText(),
+                                LocalDate.now(),
+                                dto.getScore(),
+                                user_repo.findByEmail(principal.getName()).get(),
+                                film_repo.findById(film_tmp.get().getId()).get()
+            ));
+            return new FilmReviewResponseDto(film_tmp.get().getId(),
+                List.of(new ReviewResponseDto(review_tmp.getId(),
+                                              review_tmp.getUser().getUsername(),
+                                              review_tmp.getText(),
+                                              review_tmp.getDate(),
+                                              review_tmp.getScore())));
         }
-        throw new FilmNotFoundException("Cannot find the film named " + dto.getFilmTitle());
+        throw new FilmNotFoundException("Cannot find the film with id " + dto.getFilmId());
     }
 
-    public String updateReview(Principal principal, UpdateReviewRequestDto dto){
+    public FilmReviewResponseDto updateReview(Principal principal, UpdateReviewRequestDto dto){
         User user_tmp = user_repo.findByEmail(principal.getName()).get();
         Optional<Review> review_tmp = review_repo.findById(dto.getReviewIndex());
 
         if(review_tmp.isPresent()){
             if(review_tmp.get().getUser().equals(user_tmp)){
                 updateReviewFields(review_tmp.get(), dto);
-                return "Specified review on film " + dto.getFilmTitle() + " has been updated";
+                return new FilmReviewResponseDto(review_tmp.get().getFilm().getId(),
+                        List.of(new ReviewResponseDto(review_tmp.get().getId(),
+                                                      review_tmp.get().getUser().getUsername(),
+                                                      review_tmp.get().getText(),
+                                                      review_tmp.get().getDate(),
+                                                      review_tmp.get().getScore())));
             }
             throw new ReviewNotUsersOwnReviewException(
                     "Cannot change other users review");
@@ -151,15 +164,19 @@ public class ReviewService {
         review_repo.save(review);
     }
 
-    public String deleteReviewUser(int index, Principal principal){
+    public FilmReviewResponseDto deleteReviewUser(int index, Principal principal){
         User user_tmp = user_repo.findByEmail(principal.getName()).get();
         Optional<Review> review_tmp = review_repo.findById(index);
 
         if(review_tmp.isPresent()){
             if(review_tmp.get().getUser().equals(user_tmp)){
                 review_repo.delete(review_tmp.get());
-                return "Specified review for film " + review_tmp.get().getFilm().getTitle() +
-                        " has been deleted";
+                return new FilmReviewResponseDto(review_tmp.get().getFilm().getId(),
+                   List.of(new ReviewResponseDto(review_tmp.get().getId(),
+                                                 review_tmp.get().getUser().getUsername(),
+                                                 review_tmp.get().getText(),
+                                                 review_tmp.get().getDate(),
+                                                 review_tmp.get().getScore())));
             }
             throw new ReviewNotUsersOwnReviewException(
                     "Cannot delete other users review");
@@ -168,12 +185,16 @@ public class ReviewService {
                 "that does not exist");
     }
 
-    public String deleteReviewAdmin(int index){
+    public FilmReviewResponseDto deleteReviewAdmin(int index){
         Optional<Review> review_tmp = review_repo.findById(index);
         if(review_tmp.isPresent()){
             review_repo.delete(review_tmp.get());
-            return "Specified review for film " + review_tmp.get().getFilm().getTitle() +
-                    " has been deleted";
+            return new FilmReviewResponseDto(review_tmp.get().getFilm().getId(),
+               List.of(new ReviewResponseDto(review_tmp.get().getId(),
+                                             review_tmp.get().getUser().getUsername(),
+                                             review_tmp.get().getText(),
+                                             review_tmp.get().getDate(),
+                                             review_tmp.get().getScore())));
         }
         throw new ReviewNotFoundException("Cannot delete a review " +
                 "that does not exist");
