@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class GetAllReviewsTestC {
+public class GetReviewByFilmTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -87,23 +87,21 @@ public class GetAllReviewsTestC {
     }
 
     @Test
-    @DisplayName("getAllReviews with 1 review present, should return status 200 and the review")
-    public void getAllReviewsPresent() throws Exception {
-        mockMvc.perform(get("/api/review/public/getAllReviews"))
+    @DisplayName("getReview with 1 matching review present, should return status 200 and the review")
+    public void getReviewByFilmPresent() throws Exception {
+        mockMvc.perform(get("/api/review/public/getByFilm/testFilm"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
-                .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
+                .andExpect(jsonPath("$.title").value("testFilm"))
+                .andExpect(jsonPath("$.reviews.[0].text").value("test-text"))
+                .andExpect(jsonPath("$.reviews.[0].score").value(5));
     }
 
     @Test
-    @DisplayName("getAllReviews with no reviews present, should return status 200 and no reviews")
-    public void getAllReviewsEmpty() throws Exception {
-        review_repo.deleteAll();
-        mockMvc.perform(get("/api/review/public/getAllReviews"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews").isEmpty());
-
+    @DisplayName("getReview with no matching review present, should return status 404 and a message")
+    public void getReviewByFilmNoMatches() throws Exception {
+        mockMvc.perform(get("/api/review/public/getByFilm/notTestFilm"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message")
+                        .value("Cannot find the film named notTestFilm"));
     }
 }

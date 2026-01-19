@@ -1,6 +1,5 @@
 package com.edu.film_database.controller.reviewController;
 
-import com.edu.film_database.dto.request.CreateReviewRequestDto;
 import com.edu.film_database.dto.request.UpdateReviewRequestDto;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
@@ -24,22 +23,21 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import tools.jackson.databind.ObjectMapper;
 
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class UpdateReviewTestC {
+public class DeleteReviewAdminTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,6 +56,7 @@ public class UpdateReviewTestC {
 
     //Test data
     private Role role;
+    private Role role_other;
     private User user;
     private User otherUser;
     private Film film;
@@ -74,8 +73,12 @@ public class UpdateReviewTestC {
         role_repo.deleteAll();
 
         role = new Role();
-        role.setName("USER");
+        role.setName("ADMIN");
         role_repo.save(role);
+
+        role_other = new Role();
+        role_other.setName("USER");
+        role_repo.save(role_other);
 
         user = new User();
         user.setUsername("testUser");
@@ -94,12 +97,12 @@ public class UpdateReviewTestC {
         otherUser.setFullName("testUser2FullName");
         otherUser.setAge(25);
         otherUser.setCurrentlyActive(true);
-        otherUser.setRoles(Set.of(role));
+        otherUser.setRoles(Set.of(role_other));
         user_repo.save(otherUser);
 
         Authentication auth =
                 new UsernamePasswordAuthenticationToken(
-                        "testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                        "testUser", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
                 );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -114,73 +117,54 @@ public class UpdateReviewTestC {
         review.setText("test-text");
         review.setDate(LocalDate.now());
         review.setScore(5);
-        review.setUser(user);
+        review.setUser(otherUser);
         review.setFilm(film);
         review_repo.save(review);
 
         principal = new UserPrincipal("testUser@somedomain.com");
         principal_other = new UserPrincipal("testUser2@somedomain.com");
 
-        dtoOk = new UpdateReviewRequestDto(review_repo.findAll().get(0).getId(), "testFilm", 3, "test-text.update");
+        dtoOk = new UpdateReviewRequestDto(1, "testFilm", 3, "test-text.update");
     }
 
     @Test
-    @DisplayName("UpdateReview by user with an existing review by the user," +
-            " should update the review and return status 200 and message")
-    public void updateReviewPresent() throws Exception {
+    @DisplayName("DeleteReviewAdmin with review not by admin present, " +
+            "should return status 200 and message")
+    public void deleteReviewAdminPresent() throws Exception {
         mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].title").value("testFilm"))
                 .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
                 .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
 
-        mockMvc.perform(patch("/api/review/user/updateReview").contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(dtoOk))
-                .principal(principal)
-                .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/review/admin/deleteReview/" +
+                        (review_repo.findAll().get(0).getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(principal)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Specified review on film " +
-                         dtoOk.getFilmTitle() + " has been updated"));
+                .andExpect(content().string("Specified review for film " +
+                        film.getTitle() + " has been deleted"));
 
         mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].title").value("testFilm"))
-                .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text.update"))
-                .andExpect(jsonPath("$.[0].reviews.[0].score").value(3));
+                .andExpect(jsonPath("$.[0].reviews").isEmpty());
     }
 
     @Test
-    @DisplayName("UpdateReview by user with no existing review by the user," +
-            " should return status 404 and message")
-    public void updateReviewNotPresent() throws Exception {
+    @DisplayName("DeleteReviewAdmin with no review present, " +
+            "should return status 404 and message")
+    public void deleteReviewAdminNotPresent() throws Exception {
         review_repo.deleteAll();
 
-        mockMvc.perform(patch("/api/review/user/updateReview").contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(dtoOk))
+        mockMvc.perform(delete("/api/review/admin/deleteReview/1")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .principal(principal)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
-                        .value("Cannot update non existing review"));
-    }
-
-    @Test
-    @DisplayName("UpdateReview by user trying to update review by other user," +
-            " should return status 400 and message")
-    public void updateReviewNotByUser() throws Exception {
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken(
-                        "testUser2", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                );
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        mockMvc.perform(patch("/api/review/user/updateReview").contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(dtoOk))
-                        .principal(principal_other)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("Cannot change other users review"));
+                        .value("Cannot delete a review " +
+                                "that does not exist"));
     }
 }

@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class CreateReviewTestC {
+public class CreateReviewTest {
 
     @Autowired
     private MockMvc mockMvc;

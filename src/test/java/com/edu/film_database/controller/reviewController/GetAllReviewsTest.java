@@ -14,26 +14,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class GetReviewByUserTestC {
+public class GetAllReviewsTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -77,13 +71,6 @@ public class GetReviewByUserTestC {
         user.setRoles(Set.of(role));
         user_repo.save(user);
 
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken(
-                        "user", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                );
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
         film = new Film();
         film.setTitle("testFilm");
         film.setAgeRestriction(15);
@@ -100,10 +87,9 @@ public class GetReviewByUserTestC {
     }
 
     @Test
-    @DisplayName("getReviewByUser with review by specified user present," +
-            " should return status 200 and the review")
-    public void getReviewByUserPresent() throws Exception {
-        mockMvc.perform(get("/api/review/user/getByUser/testUser@somedomain.com"))
+    @DisplayName("getAllReviews with 1 review present, should return status 200 and the review")
+    public void getAllReviewsPresent() throws Exception {
+        mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].title").value("testFilm"))
                 .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
@@ -111,25 +97,13 @@ public class GetReviewByUserTestC {
     }
 
     @Test
-    @DisplayName("getReviewByUser with review by specified user not present, " +
-            "should retrun status 404 and message")
-    public void getReviewByUserInvalidUser() throws Exception {
-        mockMvc.perform(get("/api/review/user/getByUser/notTestUser@somedomain.com"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message")
-                        .value("Cannot find the user with email notTestUser@somedomain.com"));
-    }
-
-    @Test
-    @DisplayName("getReviewByUser with review by specified user not present," +
-            " should return status 200 and no review")
-    public void getReviewByUserEmpty() throws Exception {
+    @DisplayName("getAllReviews with no reviews present, should return status 200 and no reviews")
+    public void getAllReviewsEmpty() throws Exception {
         review_repo.deleteAll();
-
-        mockMvc.perform(get("/api/review/user/getByUser/testUser@somedomain.com"))
+        mockMvc.perform(get("/api/review/public/getAllReviews"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].title").value("testFilm"))
                 .andExpect(jsonPath("$.[0].reviews").isEmpty());
-    }
 
+    }
 }

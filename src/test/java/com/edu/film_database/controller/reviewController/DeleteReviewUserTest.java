@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class DeleteReviewUserTestC {
+public class DeleteReviewUserTest {
 
     @Autowired
     private MockMvc mockMvc;
