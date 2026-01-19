@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @ActiveProfiles("test")
-@SpringBootTest(properties = "spring.security.enabled=false")
+@SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 public class UpdateReviewTestC {
 
