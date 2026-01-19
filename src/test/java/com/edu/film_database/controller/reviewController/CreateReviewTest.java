@@ -107,7 +107,7 @@ public class CreateReviewTest {
         review.setFilm(film);
         review_repo.save(review);
 
-        dtoOk = new CreateReviewRequestDto(3, 5, "test-text-2");
+        dtoOk = new CreateReviewRequestDto(film_tmp, 5, "test-text-2");
         dtoError = new CreateReviewRequestDto(film_tmp + 1, 5, "test-text-2");
         principal = new UserPrincipal("testUser@somedomain.com");
     }
