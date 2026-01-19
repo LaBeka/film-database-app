@@ -54,9 +54,11 @@ public class ReviewService {
 
     public List<FilmReviewResponseDto> getByUserName(String email){
         Optional<User> user_tmp = user_repo.findByEmail(email);
-        List<Film> film_tmp = film_repo.findAll();
 
         if(user_tmp.isPresent()){
+            List<Film> film_tmp = review_repo.findByUser(user_tmp.get())
+                    .stream().map(review -> review.getFilm()).distinct().toList();
+
             return film_tmp.stream()
                     .map(film -> convertFromUserFilms(
                             user_tmp.get(), film)).toList();

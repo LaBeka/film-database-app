@@ -129,8 +129,7 @@ public class GetReviewByUserTest {
 
         mockMvc.perform(get("/api/review/user/getByUser/testUser@somedomain.com"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].filmId").value(film_tmp))
-                .andExpect(jsonPath("$.[0].reviews").isEmpty());
+                .andExpect(jsonPath("$").isEmpty());
     }
 
 }

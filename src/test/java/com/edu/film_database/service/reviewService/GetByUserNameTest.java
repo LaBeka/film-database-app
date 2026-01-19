@@ -97,7 +97,7 @@ public class GetByUserNameTest {
     @DisplayName("GetByUserName with review by specified user present, should return review")
     public void getByUserNamePresent(){
         when(user_repo.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(film_repo.findAll()).thenReturn(List.of(film));
+        when(review_repo.findByUser(user)).thenReturn(List.of(review));
         when(review_repo.findByUserAndFilm(user, film)).thenReturn(List.of(review));
         when(review_repo.findById(review.getId())).thenReturn(Optional.of(review));
 
@@ -108,17 +108,15 @@ public class GetByUserNameTest {
 
     @Test
     @DisplayName("GetByUserName with review by specified user not present," +
-            " should name of films but no reviews")
+            " should return an empty list")
     public void getByUserNameNotPresent(){
         response_f.get(0).getReviews().remove(0);
 
         when(user_repo.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(film_repo.findAll()).thenReturn(List.of(film));
-        when(review_repo.findByUserAndFilm(user, film)).thenReturn(List.of());
 
         List<FilmReviewResponseDto> result = review_service.getByUserName(user.getEmail());
 
-        assertEquals(result, response_f);
+        assertEquals(result, new ArrayList<>());
     }
 
     @Test
