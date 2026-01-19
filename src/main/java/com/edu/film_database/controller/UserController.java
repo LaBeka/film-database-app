@@ -6,9 +6,6 @@ import com.edu.film_database.dto.response.UserResponseDto;
 import com.edu.film_database.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -43,6 +40,12 @@ public class UserController implements UserApi {
         String response = userService.createNewUser(userRequest);
         return ResponseEntity.ok(response);
 
+    }
+
+    @Override
+    public ResponseEntity<UserResponseDto> createNewUserResponseDto(UserRequestDto userRequest) {
+        UserResponseDto response = userService.createNewUserResponseDto(userRequest);
+        return ResponseEntity.ok(response);
     }
 
     @Override

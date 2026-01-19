@@ -229,6 +229,82 @@ public class UserControllersTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.age").exists());
     }
+
+    // -/--------------------------------------- PostMapping("/createUser") RETURNS USERRESPONSEDTO-------
+    @Test
+    @DisplayName("POST /create - Success: Create User and return Token (Public Access)")
+    void createUserDto_Success() throws Exception {
+        userRepository.deleteAll();
+        if (roleRepository.findByName("USER").isEmpty()) {
+            roleRepository.save(Role.builder().name("USER").build());
+        }
+        UserRequestDto newUser = new UserRequestDto(
+                "newUser",
+                "New User Fullname",
+                "unique@gmail.com",
+                "pass123",
+                25
+        );
+        // Act & Assert
+        mockMvc.perform(post("/api/user/createUser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(newUser))) // Convert DTO to JSON
+                .andExpect(status().isOk());
+
+        assertTrue(userRepository.findByEmail("unique@gmail.com").isPresent());
+    }
+
+    @Test
+    @DisplayName("POST /create - Fail 409 Conflict: Email already taken")
+    void createNewUserDto_Conflict() throws Exception {
+        UserRequestDto duplicateUser = new UserRequestDto(
+                "anotherUser",
+                "Some Name",
+                "test@mail.com", // <--- THIS EMAIL ALREADY EXISTS
+                "password",
+                30
+        );
+
+        mockMvc.perform(post("/api/user/createUser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(duplicateUser)))
+                .andExpect(status().isConflict()); // Expect HTTP 409
+    }
+
+    @Test
+    @DisplayName("POST /create - Fail 400: Invalid Email Format")
+    void createNewUserDto_InvalidEmail() throws Exception {
+        UserRequestDto invalid = new UserRequestDto("user", "Name", "not-an-email", "pass", 20);
+
+        mockMvc.perform(post("/api/user/createUser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").exists()); // Verify the error is about email
+    }
+    @Test
+    @DisplayName("POST /create - Fail 400: Password too short (< 3 chars)")
+    void createNewUserDto_ShortPassword() throws Exception {
+        UserRequestDto invalid = new UserRequestDto("user", "Name", "valid@mail.com", "12", 20);
+
+        mockMvc.perform(post("/api/user/createUser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.password").exists());
+    }
+
+    @Test
+    @DisplayName("POST /create - Fail 400: Age too low (< 1)")
+    void createNewUserDto_InvalidAge() throws Exception {
+        UserRequestDto invalid = new UserRequestDto("user", "Name", "valid@mail.com", "pass", 0);
+
+        mockMvc.perform(post("/api/user/createUser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.age").exists());
+    }
 // --------------------------------------- @PutMapping("/update/{email}")------------------------------------------
     @Test
     @WithMockUser(username = "test@mail.com", roles = "USER") // <--- ACTING AS THIS USER

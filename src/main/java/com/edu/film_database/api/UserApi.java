@@ -41,6 +41,10 @@ public interface UserApi {
     @Operation(summary = "Create new user with default 'USER' role and send back jwt-token. If email is taken throws Conflict exception. NO ROLE")
     ResponseEntity<String> createNewUser(@Valid @RequestBody UserRequestDto userRequest);
 
+    @PostMapping("/createUser")
+    @Operation(summary = "Create new user with default 'USER' role and send back response dto. If email is taken throws Conflict exception. NO ROLE")
+    ResponseEntity<UserResponseDto> createNewUserResponseDto(@Valid @RequestBody UserRequestDto userRequest);
+
     @PutMapping("/update/{email}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Update your own data, throws Conflict exception if you try update someone else's data. Available for role: USER or ADMIN")

@@ -186,4 +186,24 @@ public class UserService {
                 .build();
     }
 
+    public UserResponseDto createNewUserResponseDto(UserRequestDto dto) {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new EntityExistsException("User with given email already exists.");
+        }
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new EntityNotFoundException("Default Role 'USER' not found in database"));
+
+        User newUser = User.builder()
+                .fullName(dto.getFullName())
+                .username(dto.getUserName())
+                .email(dto.getEmail())
+                .password(encoder.encode(dto.getPassword()))
+                .age(dto.getAge())
+                .currentlyActive(true)
+                .roles(Set.of(userRole))
+                .build();
+        User savedUser = userRepository.save(newUser);
+
+        return entityToResponseDto(savedUser);
+    }
 }

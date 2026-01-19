@@ -54,6 +54,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/error",
                                 "/api/user/create",
+                                "/api/user/createUser",
                                 "/api/user/login",
                                 "/api/review/public/getAllReviews",
                                 "/api/review/public/getByFilm/**"
