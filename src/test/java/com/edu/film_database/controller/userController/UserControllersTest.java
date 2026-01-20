@@ -151,86 +151,8 @@ public class UserControllersTest {
         mockMvc.perform(get("/api/user/get/email/bad-email"))
                 .andExpect(status().isBadRequest());
     }
-    // -/--------------------------------------- PostMapping("/create") -------
-    @Test
-    @DisplayName("POST /create - Success: Create User and return Token (Public Access)")
-    void createNewUser_Success() throws Exception {
-        userRepository.deleteAll();
-        // 1. Arrange: Ensure the "USER" role exists, because the Service needs it!
-        if (roleRepository.findByName("USER").isEmpty()) {
-            roleRepository.save(Role.builder().name("USER").build());
-        }
-        UserRequestDto newUser = new UserRequestDto(
-                "newUser",
-                "New User Fullname",
-                "unique@gmail.com",
-                "pass123",
-                25
-        );
-        // Act & Assert
-        mockMvc.perform(post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(newUser))) // Convert DTO to JSON
-                .andExpect(status().isOk()) // Or .isCreated() depending on your Controller code;
-                .andExpect(content()
-                        .string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.emptyString()))); // Expect a JWT token string
 
-        assertTrue(userRepository.findByEmail("unique@gmail.com").isPresent());
-    }
-
-    @Test
-    @DisplayName("POST /create - Fail 409 Conflict: Email already taken")
-    void createNewUser_Conflict() throws Exception {
-        UserRequestDto duplicateUser = new UserRequestDto(
-                "anotherUser",
-                "Some Name",
-                "test@mail.com", // <--- THIS EMAIL ALREADY EXISTS
-                "password",
-                30
-        );
-
-        mockMvc.perform(post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(duplicateUser)))
-                .andExpect(status().isConflict()); // Expect HTTP 409
-    }
-
-    @Test
-    @DisplayName("POST /create - Fail 400: Invalid Email Format")
-    void createNewUser_InvalidEmail() throws Exception {
-        UserRequestDto invalid = new UserRequestDto("user", "Name", "not-an-email", "pass", 20);
-
-        mockMvc.perform(post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.email").exists()); // Verify the error is about email
-    }
-    @Test
-    @DisplayName("POST /create - Fail 400: Password too short (< 3 chars)")
-    void createNewUser_ShortPassword() throws Exception {
-        UserRequestDto invalid = new UserRequestDto("user", "Name", "valid@mail.com", "12", 20);
-
-        mockMvc.perform(post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").exists());
-    }
-
-    @Test
-    @DisplayName("POST /create - Fail 400: Age too low (< 1)")
-    void createNewUser_InvalidAge() throws Exception {
-        UserRequestDto invalid = new UserRequestDto("user", "Name", "valid@mail.com", "pass", 0);
-
-        mockMvc.perform(post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.age").exists());
-    }
-
-    // -/--------------------------------------- PostMapping("/createUser") RETURNS USERRESPONSEDTO-------
+    // -/--------------------------------------- PostMapping("/create") RETURNS UserResponseDto-------
     @Test
     @DisplayName("POST /create - Success: Create User and return Token (Public Access)")
     void createUserDto_Success() throws Exception {
@@ -246,7 +168,7 @@ public class UserControllersTest {
                 25
         );
         // Act & Assert
-        mockMvc.perform(post("/api/user/createUser")
+        mockMvc.perform(post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newUser))) // Convert DTO to JSON
                 .andExpect(status().isOk());
@@ -265,7 +187,7 @@ public class UserControllersTest {
                 30
         );
 
-        mockMvc.perform(post("/api/user/createUser")
+        mockMvc.perform(post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(duplicateUser)))
                 .andExpect(status().isConflict()); // Expect HTTP 409
@@ -276,7 +198,7 @@ public class UserControllersTest {
     void createNewUserDto_InvalidEmail() throws Exception {
         UserRequestDto invalid = new UserRequestDto("user", "Name", "not-an-email", "pass", 20);
 
-        mockMvc.perform(post("/api/user/createUser")
+        mockMvc.perform(post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
@@ -287,7 +209,7 @@ public class UserControllersTest {
     void createNewUserDto_ShortPassword() throws Exception {
         UserRequestDto invalid = new UserRequestDto("user", "Name", "valid@mail.com", "12", 20);
 
-        mockMvc.perform(post("/api/user/createUser")
+        mockMvc.perform(post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
@@ -299,7 +221,7 @@ public class UserControllersTest {
     void createNewUserDto_InvalidAge() throws Exception {
         UserRequestDto invalid = new UserRequestDto("user", "Name", "valid@mail.com", "pass", 0);
 
-        mockMvc.perform(post("/api/user/createUser")
+        mockMvc.perform(post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
@@ -376,13 +298,13 @@ public class UserControllersTest {
                         .content(new ObjectMapper().writeValueAsString(validData)))
                 .andExpect(status().isUnauthorized()); // Expects 401
     }
-    // ------------------------------------@PostMapping("/updateUserToAdmin/{email}")------------------------------------
+    // ------------------------------------@PostMapping("/promoteUserToAdmin/{email}")------------------------------------
 
     @Test
     @WithMockUser(username = "admin@mail.com", roles = "ADMIN")
     @DisplayName("Success: Admin promotes 'testUser' to Admin")
     void updateUserToAdmin_Success() throws Exception {
-        mockMvc.perform(post("/api/user/updateUserToAdmin/" + userUser.getEmail()))
+        mockMvc.perform(post("/api/user/promoteUserToAdmin/" + userUser.getEmail()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.roles").isArray())
@@ -400,7 +322,7 @@ public class UserControllersTest {
     @DisplayName("Fail 409: Admin tries to promote THEMSELVES")
     void updateUserToAdmin_Conflict_Self() throws Exception {
         // Act: Admin targets their own email
-        mockMvc.perform(post("/api/user/updateUserToAdmin/" + adminUser.getEmail()))
+        mockMvc.perform(post("/api/user/promoteUserToAdmin/" + adminUser.getEmail()))
                 .andDo(print())
                 .andExpect(status().isNotFound()); // Expects 404 EntityNotFound, but ideally it should be conflict status
     }
@@ -409,7 +331,7 @@ public class UserControllersTest {
     @WithMockUser(username = "admin@mail.com", roles = "ADMIN")
     @DisplayName("Fail 404: Admin tries to promote non-existent user")
     void updateUserToAdmin_NotFound() throws Exception {
-        mockMvc.perform(post("/api/user/updateUserToAdmin/nobody@mail.com"))
+        mockMvc.perform(post("/api/user/promoteUserToAdmin/nobody@mail.com"))
                 .andDo(print())
                 .andExpect(status().isNotFound()); // Expects 404 EntityNotFound
     }
@@ -417,7 +339,7 @@ public class UserControllersTest {
     @Test
     @DisplayName("Fail 401: Unauthenticated user tries to promote")
     void updateUserToAdmin_Unauthenticated() throws Exception {
-        mockMvc.perform(post("/api/user/updateUserToAdmin/" + userUser.getEmail()))
+        mockMvc.perform(post("/api/user/promoteUserToAdmin/" + userUser.getEmail()))
                 .andExpect(status().isUnauthorized()); // Expects 401
     }
 
@@ -433,7 +355,7 @@ public class UserControllersTest {
                 .build();
         userRepository.save(thirdUser);
 
-        mockMvc.perform(post("/api/user/updateUserToAdmin/" + thirdUser.getEmail()))
+        mockMvc.perform(post("/api/user/promoteUserToAdmin/" + thirdUser.getEmail()))
                 .andDo(print())
                 .andExpect(status().isForbidden()); // Currently allowed by your annotation
     }

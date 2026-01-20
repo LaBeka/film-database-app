@@ -2,6 +2,7 @@ package com.edu.film_database.api;
 
 
 import com.edu.film_database.dto.request.UserRequestDto;
+import com.edu.film_database.dto.request.UserRequestUpdateDto;
 import com.edu.film_database.dto.response.UserResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,21 +39,18 @@ public interface UserApi {
     ResponseEntity<UserResponseDto> getUserByEmail(@Email(message = "Email format is invalid") @PathVariable("email") String email);
 
     @PostMapping("/create")
-    @Operation(summary = "Create new user with default 'USER' role and send back jwt-token. If email is taken throws Conflict exception. NO ROLE")
-    ResponseEntity<String> createNewUser(@Valid @RequestBody UserRequestDto userRequest);
-
-    @PostMapping("/createUser")
-    @Operation(summary = "Create new user with default 'USER' role and send back response dto. If email is taken throws Conflict exception. NO ROLE")
-    ResponseEntity<UserResponseDto> createNewUserResponseDto(@Valid @RequestBody UserRequestDto userRequest);
+    @Operation(summary = "Create new user with default 'USER' role and send back UserResponseDto. If email is taken throws exception. NO ROLE")
+    ResponseEntity<UserResponseDto> createNewUser(@Valid @RequestBody UserRequestDto userRequest);
 
     @PutMapping("/update/{email}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Update your own data, throws Conflict exception if you try update someone else's data. Available for role: USER or ADMIN")
     ResponseEntity<UserResponseDto> updateUser(
-            @Valid @RequestBody UserRequestDto userRequest,
+            @Valid @RequestBody UserRequestUpdateDto userRequest,
             Principal principal);
 
-    @PostMapping("/updateUserToAdmin/{email}")
+
+    @PostMapping("/promoteUserToAdmin/{email}")
     @Operation(summary = "Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict exception. Available for role: ADMIN")
     @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<UserResponseDto> updateUserRoleAdmin(

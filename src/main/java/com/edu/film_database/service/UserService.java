@@ -2,6 +2,7 @@ package com.edu.film_database.service;
 
 import com.edu.film_database.config.JwtUtil;
 import com.edu.film_database.dto.request.UserRequestDto;
+import com.edu.film_database.dto.request.UserRequestUpdateDto;
 import com.edu.film_database.dto.response.UserResponseDto;
 import com.edu.film_database.model.Role;
 import com.edu.film_database.model.User;
@@ -65,31 +66,7 @@ public class UserService {
         return entityToResponseDto(user);
     }
 
-    public String createNewUser(UserRequestDto dto) {
-
-        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new EntityExistsException("User with given email already exists.");
-        }
-
-        // 2. Fetch Role safely from DB (Don't load all roles)
-        Role userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new EntityNotFoundException("Default Role 'USER' not found in database"));
-
-        User newUser = User.builder()
-                .fullName(dto.getFullName())
-                .username(dto.getUserName())
-                .email(dto.getEmail())
-                .password(encoder.encode(dto.getPassword()))
-                .age(dto.getAge())
-                .currentlyActive(true)
-                .roles(Set.of(userRole))
-                .build();
-        User savedUser = userRepository.save(newUser);
-
-        return generateToken(savedUser.getEmail(), dto.getPassword());
-    }
-
-    public UserResponseDto updateUserData(UserRequestDto dto, Principal principal) {
+    public UserResponseDto updateUserData(UserRequestUpdateDto dto, Principal principal) {
         User authorizedUser = getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
@@ -101,7 +78,6 @@ public class UserService {
             throw new EntityNotFoundException("User is removed from db.");
         }
         user.setUsername(dto.getUserName());
-        user.setPassword(encoder.encode(dto.getPassword()));
         user.setFullName(dto.getFullName());
         user.setAge(dto.getAge());
         user.setCurrentlyActive(true);
@@ -182,11 +158,12 @@ public class UserService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .currentlyActive(user.isCurrentlyActive())
+                .age(user.getAge())
                 .roles(stringRoles)
                 .build();
     }
 
-    public UserResponseDto createNewUserResponseDto(UserRequestDto dto) {
+    public UserResponseDto createNewUser(UserRequestDto dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new EntityExistsException("User with given email already exists.");
         }

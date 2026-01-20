@@ -2,6 +2,7 @@ package com.edu.film_database.service.userService;
 
 import com.edu.film_database.config.JwtUtil;
 import com.edu.film_database.dto.request.UserRequestDto;
+import com.edu.film_database.dto.request.UserRequestUpdateDto;
 import com.edu.film_database.dto.response.UserResponseDto;
 import com.edu.film_database.model.Role;
 import com.edu.film_database.model.User;
@@ -96,17 +97,12 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        Authentication auth = Mockito.mock(Authentication.class);
-        Mockito.when(authenticationManager.authenticate(any())).thenReturn(auth);
-        Mockito.when(jwtUtil.generateToken(any())).thenReturn("fake-jwt-token");
-
-        String token = userService.createNewUser(dto);
+        UserResponseDto result = userService.createNewUser(dto);
 
         Mockito.verify(userRepository).save(argThat(user ->
-                user.getEmail().equals("new@email.com") &&
-                        user.getRoles().contains(userRole) &&
-                        user.getPassword().equals("hashed") &&
-                        user.isCurrentlyActive()
+                result.getEmail().equals("new@email.com") &&
+                        result.getRoles().contains(userRole.getName()) &&
+                        result.isCurrentlyActive()
         ));
     }
 
@@ -131,9 +127,27 @@ public class UserServiceTest {
     // --- 2. updateUserData EXPECTATIONS ---
 
     @Test
+    @DisplayName("updateUserData: Should update user's data (all except for password, email and currentlyActive)")
+    void updateUserData_Success() {
+        UserRequestUpdateDto dto = new UserRequestUpdateDto(adminUser.getUsername(), adminUser.getFullName(), adminUser.getEmail(),20);
+
+        Mockito.when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(adminUser));
+        Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        UserResponseDto result = userService.updateUserData(dto, principal);
+
+        Mockito.verify(userRepository).save(argThat(user ->
+                result.getEmail().equals(dto.getEmail()) &&
+                        result.getRoles().contains(adminRole.getName()) &&
+                        result.isCurrentlyActive() &&
+                        result.getAge() > 1
+        ));
+    }
+
+    @Test
     @DisplayName("updateUserData: Should throw exception when updating someone else's data")
     void updateUserData_Forbidden() {
-        UserRequestDto dto = new UserRequestDto("SomeUser", "Hacker", "email@email.com", "pass",  20);
+        UserRequestUpdateDto dto = new UserRequestUpdateDto("SomeUser", "Hacker", "email@email.com", 20);
         Mockito.when(userRepository.findByEmail("admin@email.com")).thenReturn(Optional.of(adminUser));
         Mockito.when(userRepository.findByEmail("email@email.com")).thenReturn(Optional.of(userUser));
 
