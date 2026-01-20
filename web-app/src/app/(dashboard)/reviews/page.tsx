@@ -5,17 +5,19 @@ import api from "@/lib/api"
 import { FilmReviewResponseDto } from "@/types/types"
 import { ReviewResponseDto } from "@/types/types"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useSearchParams } from "next/navigation";
 
 export default function ReviewsPage() {
     const [filmId, reviews] = useState<FilmReviewResponseDto[]>([])
-    console.log('ReviewsPage()');
+    const params = useSearchParams()
+    const id = params.get("filmId")
 
     useEffect(() => {
-        api.get(`/review/public/getByFilm/1`)
-            .then(res => filmId(res.filmId))
-            .then(res => reviews(res.reviews))
-            .then(res => console.log(res.reviews))
+        api.get(`/review/public/getByFilm/${id}`)
+            .then(res => reviews(res.data.reviews))
+            .then(res => console.log(res.filmId))
             .catch(err => {
+                console.log(err.response?.status);
                 const status = err.response?.status;
                 const message = err.response?.message;
                 console.error("Access Denied with message: ", message, " and status: ", status);
@@ -38,13 +40,11 @@ export default function ReviewsPage() {
                 <TableBody>
                     {filmId.map((review) => (
                         <TableRow key={review.index}>
+                            <TableCell>{review.index}</TableCell>
                             <TableCell>{review.userName}</TableCell>
                             <TableCell>{review.text}</TableCell>
                             <TableCell>{review.date}</TableCell>
                             <TableCell>{review.score}</TableCell>
-                            <TableCell>
-                                <a href={`/users/${user.id}`} className="accent-red-400 underline">View</a>
-                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

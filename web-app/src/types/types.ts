@@ -23,13 +23,13 @@ export interface FilmResponseDto {
 
 export interface FilmReviewResponseDto {
     filmId : number;
-    reviews : Array<ReviewResponseDto>;
+    reviews : ReviewResponseDto[];
 }
 
 export interface ReviewResponseDto {
     index : number;
     userName : string;
     text : string;
-    date : string;
+    date : Date;
     score : number;
 }

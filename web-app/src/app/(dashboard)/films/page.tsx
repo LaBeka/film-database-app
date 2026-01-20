@@ -54,7 +54,7 @@ export default function UsersPage() {
                             <TableCell>
                                 {/* Use ?filmId=ID so the reviews page knows which films to filter */}
                                 <Link
-                                    href={`/reviews?filmId=${film.title}`}
+                                    href={`/reviews?filmId=${film.id}`}
                                     className="text-blue-600 hover:underline font-medium"
                                 >
                                     View Reviews
