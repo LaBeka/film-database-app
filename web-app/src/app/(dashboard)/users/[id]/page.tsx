@@ -3,10 +3,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {z} from "zod";
-import { userSchema, UserRequestDto } from "@/types/userSchema";
+import { userUpdateSchema, UserUpdateRequestDto } from "@/types/userSchema";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react"
-import {UserResponseDto} from "@/types/types";
 import api from "@/lib/api";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import {
@@ -39,7 +38,7 @@ export default function UserDetailPage() {
     const [user, setUser] = useState<UserResponseDto>()
 
     const form = useForm({
-        resolver: zodResolver(userSchema),
+        resolver: zodResolver(userUpdateSchema),
         defaultValues: {
             userName: "",
             fullName: "",
@@ -67,6 +66,7 @@ export default function UserDetailPage() {
                     age: res.data.age,
                     password: ""
                 });
+                console.log("res.data.age: ", res.data.age);
             })
             .catch(error => {
                 const axiosError = error as AxiosError<BackendErrorResponse>;
@@ -82,14 +82,34 @@ export default function UserDetailPage() {
                 }
             })
     }, [id])
+
     console.log(user?.roles)
+    useEffect(() => {
+        if (!user) return;
+        form.reset({
+            userName: user.userName,
+            fullName: user.fullName,
+            email: user.email,
+            age: user.age,
+            password: ""
+        });
+    }, [user, form]);
 
 
-    async function onSubmit(values: UserRequestDto) {
+    async function onSubmit(values: UserUpdateRequestDto) {
+        console.log("onSubmit:::: ", values)
+        const userEmail = user?.email;
+        const updatedValues = {
+            ...values,
+            email: userEmail
+        };
         try {
             // Calls your @PostMapping("/api/user/create")
-            await api.post("/api/user/update/{email}", values);
-            router.push("/login"); // Redirect to login after success
+            await api.put(`/user/update/${userEmail}`, updatedValues);
+            router.refresh();
+
+            // 2. Optional: Show a success message instead of redirecting
+            //alert("Profile updated successfully!");
         } catch (error: unknown) {
             // 2. Check if this is an Axios Error
             const axiosError = error as AxiosError<BackendErrorResponse>;
@@ -109,6 +129,7 @@ export default function UserDetailPage() {
 
     // 3. New Submit Handler for Roles
     async function onSubmitUpdateRole(values: z.infer<typeof roleSchema>) {
+
         try {
             // Endpoint: /api/user/updateUserToAdmin/{email}
             // Assuming you want to pass the role as a plain string or body
@@ -184,7 +205,12 @@ export default function UserDetailPage() {
                                 <FormItem>
                                     <FieldLabel>Age</FieldLabel>
                                     <FormControl>
-                                        <Input type="number" className="text-sm sm:text-base h-9 sm:h-10" {...field} />
+                                        <Input className="text-sm sm:text-base h-9 sm:h-10"
+                                            type="number"
+                                            {...field}
+                                            onChange={(e) => field.onChange(e.target.valueAsNumber)} // Forces it to a number
+                                        />
+                                        {/*<Input type="number"  {...field} />*/}
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

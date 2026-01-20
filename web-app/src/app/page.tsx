@@ -10,14 +10,21 @@ export default function Home() {
             return !!localStorage.getItem("token")
         }
         return false
-    })
+    });
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const checkToken = () => setIsLoggedIn(!!localStorage.getItem("token"))
         window.addEventListener("storage", checkToken)
 
         return () => window.removeEventListener("storage", checkToken)
     }, [])
+
+// If not mounted, render a neutral state that matches the server exactly
+    if (!mounted) {
+        return <main className="flex min-h-screen flex-col items-center justify-center p-24" />;
+    }
 
     const handleLogout = () => {
         localStorage.removeItem("token"); // Removes the JWT
@@ -44,8 +51,12 @@ export default function Home() {
                 <div className="text-center space-y-6">
                     <p className="text-xl text-gray-600">Please login to continue.</p>
                     <div className="flex gap-4 justify-center">
-                        <Link href="/login"><Button size="lg">Login</Button></Link>
-                        <Link href="/register"><Button variant="outline" size="lg">Register</Button></Link>
+                        <Button asChild size="lg">
+                            <Link href="/login">Login</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="lg">
+                            <Link href="/register">Register</Link>
+                        </Button>
                     </div>
                 </div>
             )}

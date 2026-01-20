@@ -2,6 +2,7 @@ package com.edu.film_database.service;
 
 import com.edu.film_database.config.JwtUtil;
 import com.edu.film_database.dto.request.UserRequestDto;
+import com.edu.film_database.dto.request.UserRequestUpdateDto;
 import com.edu.film_database.dto.response.UserResponseDto;
 import com.edu.film_database.model.Role;
 import com.edu.film_database.model.User;
@@ -89,7 +90,7 @@ public class UserService {
         return generateToken(savedUser.getEmail(), dto.getPassword());
     }
 
-    public UserResponseDto updateUserData(UserRequestDto dto, Principal principal) {
+    public UserResponseDto updateUserData(UserRequestUpdateDto dto, Principal principal) {
         User authorizedUser = getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
@@ -101,7 +102,6 @@ public class UserService {
             throw new EntityNotFoundException("User is removed from db.");
         }
         user.setUsername(dto.getUserName());
-        user.setPassword(encoder.encode(dto.getPassword()));
         user.setFullName(dto.getFullName());
         user.setAge(dto.getAge());
         user.setCurrentlyActive(true);
@@ -182,6 +182,7 @@ public class UserService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .currentlyActive(user.isCurrentlyActive())
+                .age(user.getAge())
                 .roles(stringRoles)
                 .build();
     }

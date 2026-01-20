@@ -2,6 +2,7 @@ package com.edu.film_database.controller;
 
 import com.edu.film_database.api.UserApi;
 import com.edu.film_database.dto.request.UserRequestDto;
+import com.edu.film_database.dto.request.UserRequestUpdateDto;
 import com.edu.film_database.dto.response.UserResponseDto;
 import com.edu.film_database.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<UserResponseDto> updateUser(
-            UserRequestDto userRequest,
+            UserRequestUpdateDto userRequest,
             Principal principal) {
         UserResponseDto response = userService.updateUserData(userRequest, principal);
         return ResponseEntity.ok(response);
