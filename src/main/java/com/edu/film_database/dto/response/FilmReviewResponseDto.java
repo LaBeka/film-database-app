@@ -5,16 +5,16 @@ import java.util.Objects;
 
 public class FilmReviewResponseDto {
 
-    private String title;
+    private int filmId;
     private List<ReviewResponseDto> reviews;
 
-    public FilmReviewResponseDto(String title, List<ReviewResponseDto> reviews) {
-        this.title = title;
+    public FilmReviewResponseDto(int filmId, List<ReviewResponseDto> reviews) {
+        this.filmId = filmId;
         this.reviews = reviews;
     }
 
-    public String getTitle() {
-        return title;
+    public int getFilmId() {
+        return filmId;
     }
 
     public List<ReviewResponseDto> getReviews() {
@@ -24,7 +24,7 @@ public class FilmReviewResponseDto {
     @Override
     public String toString() {
         return "FilmReviewResponseDto{" +
-                "title='" + title + '\'' +
+                "filmId=" + filmId +
                 ", reviews=" + reviews +
                 '}';
     }
@@ -33,11 +33,11 @@ public class FilmReviewResponseDto {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         FilmReviewResponseDto that = (FilmReviewResponseDto) o;
-        return Objects.equals(title, that.title) && Objects.equals(reviews, that.reviews);
+        return filmId == that.filmId && Objects.equals(reviews, that.reviews);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, reviews);
+        return Objects.hash(filmId, reviews);
     }
 }

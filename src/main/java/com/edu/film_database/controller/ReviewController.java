@@ -27,8 +27,8 @@ public class ReviewController implements ReviewApi {
 
     @Override
     public ResponseEntity<FilmReviewResponseDto> getReviewByFilm(
-            @PathVariable String filmTitle){
-        return ResponseEntity.ok(service.getByFilm(filmTitle));
+            @PathVariable int filmId){
+        return ResponseEntity.ok(service.getByFilm(filmId));
     }
 
     @Override
@@ -38,22 +38,22 @@ public class ReviewController implements ReviewApi {
     }
 
     @Override
-    public ResponseEntity<String> createReview(@RequestBody CreateReviewRequestDto dto, Principal principal){
+    public ResponseEntity<FilmReviewResponseDto> createReview(@RequestBody CreateReviewRequestDto dto, Principal principal){
         return ResponseEntity.ok(service.createReview(principal, dto));
     }
 
     @Override
-    public ResponseEntity<String> updateReview(@RequestBody UpdateReviewRequestDto dto, Principal principal){
+    public ResponseEntity<FilmReviewResponseDto> updateReview(@RequestBody UpdateReviewRequestDto dto, Principal principal){
         return ResponseEntity.ok(service.updateReview(principal, dto));
     }
 
     @Override
-    public ResponseEntity<String> deleteReviewUser(@PathVariable int index, Principal principal){
+    public ResponseEntity<FilmReviewResponseDto> deleteReviewUser(@PathVariable int index, Principal principal){
         return ResponseEntity.ok(service.deleteReviewUser(index, principal));
     }
 
     @Override
-    public ResponseEntity<String> deleteReviewAdmin(@PathVariable int index){
+    public ResponseEntity<FilmReviewResponseDto> deleteReviewAdmin(@PathVariable int index){
         return ResponseEntity.ok(service.deleteReviewAdmin(index));
     }
 }

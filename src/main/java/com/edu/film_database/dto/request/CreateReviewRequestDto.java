@@ -7,33 +7,45 @@ import java.util.Objects;
 public class CreateReviewRequestDto {
 
     @NotNull
-    private String filmTitle;
+    private int filmId;
     private int score;
     @NotNull
     private String text;
 
-    public CreateReviewRequestDto(String filmTitle, int score, String text) {
-        this.filmTitle = filmTitle;
+    public CreateReviewRequestDto(int filmId, int score, String text) {
+        this.filmId = filmId;
         this.score = score;
         this.text = text;
     }
 
-    public String getFilmTitle() {
-        return filmTitle;
+    public int getFilmId() {
+        return filmId;
+    }
+
+    public void setFilmId(int filmId) {
+        this.filmId = filmId;
     }
 
     public int getScore() {
         return score;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
     public String getText() {
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
     public String toString() {
         return "CreateReviewRequestDto{" +
-                "filmTitle='" + filmTitle + '\'' +
+                "filmId=" + filmId +
                 ", score=" + score +
                 ", text='" + text + '\'' +
                 '}';
@@ -43,11 +55,11 @@ public class CreateReviewRequestDto {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CreateReviewRequestDto that = (CreateReviewRequestDto) o;
-        return score == that.score && Objects.equals(filmTitle, that.filmTitle) && Objects.equals(text, that.text);
+        return filmId == that.filmId && score == that.score && Objects.equals(text, that.text);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(filmTitle, score, text);
+        return Objects.hash(filmId, score, text);
     }
 }

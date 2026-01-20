@@ -83,7 +83,7 @@ public class DeleteReviewAdminTest {
                 review.getDate(), review.getScore()));
 
         response_f = new ArrayList<>();
-        response_f.add(new FilmReviewResponseDto(film.getTitle(), response_r));
+        response_f.add(new FilmReviewResponseDto(film.getId(), response_r));
 
         films = new ArrayList<>();
         films.add(film);
@@ -100,10 +100,9 @@ public class DeleteReviewAdminTest {
     public void deleteReviewAdminPresent(){
         when(review_repo.findById(1)).thenReturn(Optional.of(review));
 
-        String result = review_service.deleteReviewAdmin(1);
+        FilmReviewResponseDto result = review_service.deleteReviewAdmin(1);
 
-        assertEquals(result, "Specified review for film " + film.getTitle() +
-                " has been deleted");
+        assertEquals(result, response_f.get(0));
     }
 
     @Test
