@@ -11,3 +11,5 @@ npx shadcn@latest add form input button card label
  npm run dev
 
  + npx shadcn@latest add sidebar
+ + npx shadcn@latest add field
+ + npx shadcn@latest add badge

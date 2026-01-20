@@ -7,3 +7,29 @@ export interface UserResponseDto {
     age: number;
     roles: string[];
 }
+
+export interface FilmResponseDto {
+    id: number;
+    title: string;
+    genre: string;
+    casta: string[];
+    ageRestriction: number;
+    awards: string[];
+    langusges: string[];
+    aspectRatio: number;
+    colorStatus: string;
+    cameraUsed: string;
+}
+
+export interface FilmReviewResponseDto {
+    filmId : number;
+    reviews : Array<ReviewResponseDto>;
+}
+
+export interface ReviewResponseDto {
+    index : number;
+    userName : string;
+    text : string;
+    date : string;
+    score : number;
+}

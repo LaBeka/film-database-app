@@ -36,7 +36,7 @@ export default function UsersPage() {
                             <TableCell>{user.userName}</TableCell>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>
-                                <a href={`/users/${user.id}`} className="text-blue-500 underline">View</a>
+                                <a href={`/users/${user.id}`} className="accent-red-400 underline">View</a>
                             </TableCell>
                         </TableRow>
                     ))}
