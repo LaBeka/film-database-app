@@ -90,7 +90,7 @@ public class GetReviewByFilmTest {
     @Test
     @DisplayName("getReview with 1 matching review present, should return status 200 and the review")
     public void getReviewByFilmPresent() throws Exception {
-        mockMvc.perform(get("/api/review/public/getByFilm/testFilm"))
+        mockMvc.perform(get("/api/review/public/getByFilm/" + film_tmp))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filmId").value(film_tmp))
                 .andExpect(jsonPath("$.reviews.[0].text").value("test-text"))
@@ -100,9 +100,9 @@ public class GetReviewByFilmTest {
     @Test
     @DisplayName("getReview with no matching review present, should return status 404 and a message")
     public void getReviewByFilmNoMatches() throws Exception {
-        mockMvc.perform(get("/api/review/public/getByFilm/notTestFilm"))
+        mockMvc.perform(get("/api/review/public/getByFilm/" + (film_tmp + 1)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
-                        .value("Cannot find the film named notTestFilm"));
+                        .value("Cannot find the film with id " + (film_tmp + 1)));
     }
 }

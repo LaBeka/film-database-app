@@ -88,4 +88,4 @@ VALUES ('testfilm1', 15, 2.2),
 
 -- Insert Reviews
 INSERT INTO reviews (text, date, score, film_id, user_id)
-VALUES ('Amazing movie!', '2026-01-01', 1, 1, 3),
+VALUES ('Amazing movie!', '2026-01-01', 1, 1, 3);

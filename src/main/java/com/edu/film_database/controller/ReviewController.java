@@ -27,8 +27,8 @@ public class ReviewController implements ReviewApi {
 
     @Override
     public ResponseEntity<FilmReviewResponseDto> getReviewByFilm(
-            @PathVariable String filmTitle){
-        return ResponseEntity.ok(service.getByFilm(filmTitle));
+            @PathVariable int filmId){
+        return ResponseEntity.ok(service.getByFilm(filmId));
     }
 
     @Override

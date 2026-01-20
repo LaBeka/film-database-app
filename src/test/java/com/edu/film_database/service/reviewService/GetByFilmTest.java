@@ -89,10 +89,10 @@ public class GetByFilmTest {
     @Test
     @DisplayName("GetByFilm with matching review present, should return review")
     public void getByFilmPresent(){
-        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
+        when(film_repo.findById(film.getId())).thenReturn(Optional.of(film));
         when(review_repo.findByFilm(film)).thenReturn(List.of(review));
 
-        FilmReviewResponseDto result = review_service.getByFilm(film.getTitle());
+        FilmReviewResponseDto result = review_service.getByFilm(film.getId());
 
         assertEquals(result, response_f.get(0));
     }
@@ -103,10 +103,10 @@ public class GetByFilmTest {
     public void getByFilmNotPresent(){
         response_f.get(0).getReviews().remove(0);
 
-        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.of(film));
+        when(film_repo.findById(film.getId())).thenReturn(Optional.of(film));
         when(review_repo.findByFilm(film)).thenReturn(List.of());
 
-        FilmReviewResponseDto result = review_service.getByFilm(film.getTitle());
+        FilmReviewResponseDto result = review_service.getByFilm(film.getId());
 
         assertEquals(result, response_f.get(0));
     }
@@ -117,10 +117,10 @@ public class GetByFilmTest {
     public void getByFilmException(){
         response_f.remove(0);
 
-        when(film_repo.findByTitle(film.getTitle())).thenReturn(Optional.empty());
+        when(film_repo.findById(film.getId() + 1)).thenReturn(Optional.empty());
 
         FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
-                () -> review_service.getByFilm(film.getTitle()));
-        assertEquals("Cannot find the film named " + film.getTitle(), exception.getMessage());
+                () -> review_service.getByFilm(film.getId() + 1));
+        assertEquals("Cannot find the film with id " + (film.getId() + 1), exception.getMessage());
     }
 }

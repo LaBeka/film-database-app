@@ -44,12 +44,12 @@ public class ReviewService {
         return new ArrayList<>();
     }
 
-    public FilmReviewResponseDto getByFilm(String title){
-        Optional<Film> film_tmp = film_repo.findByTitle(title);
+    public FilmReviewResponseDto getByFilm(int id){
+        Optional<Film> film_tmp = film_repo.findById(id);
         if(film_tmp.isPresent()){
             return convertFromFilm(film_tmp.get());
         }
-        throw new FilmNotFoundException("Cannot find the film named " + title);
+        throw new FilmNotFoundException("Cannot find the film with id " + id);
     }
 
     public List<FilmReviewResponseDto> getByUserName(String email){
