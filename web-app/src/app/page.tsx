@@ -11,17 +11,10 @@ export default function Home() {
         }
         return false
     })
-    const [message, setMessage] = useState("Loading...");
 
     useEffect(() => {
         const checkToken = () => setIsLoggedIn(!!localStorage.getItem("token"))
         window.addEventListener("storage", checkToken)
-
-        // Fetch message using the proxy path
-        fetch('/api/test/')
-            .then((res) => res.text())
-            .then((data) => setMessage(data))
-            .catch((err) => setMessage("Error connecting to backend."));
 
         return () => window.removeEventListener("storage", checkToken)
     }, [])

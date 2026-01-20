@@ -11,7 +11,7 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 
-const USER_PATH = "/api/user";
+// const USER_PATH = "/api/user";
 
 const LoginSchema = z.object({
     email: z.string().email(),
@@ -33,7 +33,7 @@ export default function LoginPage() {
     async function onSubmit(values: z.infer<typeof LoginSchema>) {
         try {
             // Backend expects @RequestParam, so we use 'params' in axios
-            const response = await api.post(`${USER_PATH}/login`, null, {
+            const response = await api.post(`/user/login`, null, {
                 params: {
                     email: values.email,
                     password: values.password,

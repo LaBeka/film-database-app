@@ -56,7 +56,7 @@ public class UserService {
     }
 
     public UserResponseDto getUserById(int id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User by provided id not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User by provided id: " + id + " not found"));
         return entityToResponseDto(user);
     }
 

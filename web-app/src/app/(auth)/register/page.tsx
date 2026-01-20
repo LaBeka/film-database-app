@@ -31,7 +31,7 @@ export default function RegisterPage() {
     async function onSubmit(values: UserRequestDto) {
         try {
             // Calls your @PostMapping("/api/user/create")
-            await api.post("/api/user/createUser", values);
+            await api.post("/user/createUser", values);
             router.push("/login"); // Redirect to login after success
         } catch (error: unknown) {
             // 2. Check if this is an Axios Error
