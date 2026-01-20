@@ -5,24 +5,25 @@ import java.util.List;
 public class FilmResponseDTO {
 
     private int id;
-    int releaseYear;
+    Integer releaseYear;
     String title;
     String genre;
-    List<String> cast;
-    int ageRestriction;
-    List<String> awards;
-    List<String> languages;
-    double aspectRatio;
+    String cast;
+    Integer ageRestriction;
+    String awards;
+    String languages;
+    String aspectRatio;
     String colorStatus;
     String cameraUsed;
 
     public FilmResponseDTO() {
     }
 
-    public FilmResponseDTO(int id, int releaseYear, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> languages, double aspectRatio, String colorStatus, String cameraUsed) {
+    public FilmResponseDTO(Integer id, String title, Integer releaseYear, String genre, String cast, Integer ageRestriction, String awards, String languages,
+                           String aspectRatio, String colorStatus, String cameraUsed) {
         this.id = id;
-        this.releaseYear = releaseYear;
         this.title = title;
+        this.releaseYear = releaseYear;
         this.genre = genre;
         this.cast = cast;
         this.ageRestriction = ageRestriction;
@@ -33,11 +34,27 @@ public class FilmResponseDTO {
         this.cameraUsed = cameraUsed;
     }
 
-    public int getId() {
-        return id;
+    public Integer getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(Integer releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public void setAspectRatio(String aspectRatio) {
+        this.aspectRatio = aspectRatio;
     }
 
     public void setId(int id) {
+        this.id = id;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -49,11 +66,11 @@ public class FilmResponseDTO {
         this.title = title;
     }
 
-    public int getReleaseDate() {
+    public Integer getReleaseDate() {
         return releaseYear;
     }
 
-    public void setReleaseDate(int releaseDate) {
+    public void setReleaseDate(Integer releaseDate) {
         this.releaseYear = releaseDate;
     }
 
@@ -65,44 +82,40 @@ public class FilmResponseDTO {
         this.genre = genre;
     }
 
-    public List<String> getCast() {
+    public String getCast() {
         return cast;
     }
 
-    public void setCast(List<String> cast) {
+    public void setCast(String cast) {
         this.cast = cast;
     }
 
-    public int getAgeRestriction() {
+    public Integer getAgeRestriction() {
         return ageRestriction;
     }
 
-    public void setAgeRestriction(int ageRestriction) {
+    public void setAgeRestriction(Integer ageRestriction) {
         this.ageRestriction = ageRestriction;
     }
 
-    public List<String> getAwards() {
+    public String getAwards() {
         return awards;
     }
 
-    public void setAwards(List<String> awards) {
+    public void setAwards(String awards) {
         this.awards = awards;
     }
 
-    public List<String> getLanguages() {
+    public String getLanguages() {
         return languages;
     }
 
-    public void setLanguages(List<String> languages) {
+    public void setLanguages(String languages) {
         this.languages = languages;
     }
 
-    public double getAspectRatio() {
+    public String getAspectRatio() {
         return aspectRatio;
-    }
-
-    public void setAspectRatio(double aspectRatio) {
-        this.aspectRatio = aspectRatio;
     }
 
     public String getColorStatus() {
