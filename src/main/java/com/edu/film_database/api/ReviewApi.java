@@ -28,7 +28,7 @@ public interface ReviewApi {
     @GetMapping("/public/getByFilm/{filmId}")
     @Operation(summary = "List of all the reviews based on filmTitle")
     public ResponseEntity<FilmReviewResponseDto> getReviewByFilm(
-            @PathVariable int filmTitle);
+            @PathVariable int filmId);
 
     @GetMapping("user/getByUser/{email}")
     @PreAuthorize("hasRole('USER')")
