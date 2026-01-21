@@ -63,7 +63,7 @@ public class FindByUserAndFilmTest
         film = new Film();
         film.setTitle("testFilm");
         film.setAgeRestriction(15);
-        film.setAspectRatio(2.2);
+        film.setAspectRatio("2.2");
         film_repo.save(film);
 
         review = new Review();
