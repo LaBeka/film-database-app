@@ -96,7 +96,7 @@ public class CreateReviewTest {
         film = new Film();
         film.setTitle("testFilm");
         film.setAgeRestriction(15);
-        film.setAspectRatio(2.2);
+        film.setAspectRatio("2.2");
         film_tmp = film_repo.save(film).getId();
 
         review = new Review();
