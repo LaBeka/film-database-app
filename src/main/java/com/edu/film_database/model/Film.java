@@ -13,10 +13,10 @@ public class Film {
     int id;
 
     String title;
-    int releaseYear;
+    Integer releaseYear;
     String genre;
     String casta;
-    int ageRestriction;
+    Integer ageRestriction;
     @Column(name = "awards", nullable = true, unique = false)
     String awards;
     @Column(name = "languages", nullable = true, unique = false)
@@ -88,7 +88,7 @@ public class Film {
         this.genre = genre;
     }
 
-    public String getCast() {
+    public String getCasta() {
         return casta;
     }
 

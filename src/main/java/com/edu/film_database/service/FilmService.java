@@ -1,13 +1,11 @@
 package com.edu.film_database.service;
 
 import com.edu.film_database.model.Film;
-import com.edu.film_database.model.dto.FilmResponseDTO;
+import com.edu.film_database.dto.response.FilmResponseDTO;
 import com.edu.film_database.repo.FilmRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +18,10 @@ public class FilmService {
     public List<FilmResponseDTO> findAll(){
         return repo.findAll().stream().map( f -> new FilmResponseDTO(
             f.getId(),
-            f.getTitle(),
-            f.getReleaseYear(),
+                f.getReleaseYear(),
+                f.getTitle(),
             f.getGenre(),
-            f.getCast(),
+            f.getCasta(),
             f.getAgeRestriction(),
 //                Collections.emptyList(),
 //                Collections.emptyList(),
@@ -42,10 +40,10 @@ public class FilmService {
         Film film = filmOption.orElseThrow();
         return new FilmResponseDTO(
             film.getId(),
-            film.getTitle(),
-            film.getReleaseYear(),
+                film.getReleaseYear(),
+                film.getTitle(),
             film.getGenre(),
-            film.getCast(),
+            film.getCasta(),
             film.getAgeRestriction(),
             film.getAwards(),
             film.getLanguages(),
@@ -59,10 +57,10 @@ public class FilmService {
     public List<FilmResponseDTO> findByTitle(String sQuery){
         return repo.findByTitle(sQuery).stream().map( f -> new FilmResponseDTO(
             f.getId(),
-            f.getTitle(),
-            f.getReleaseYear(),
+                f.getReleaseYear(),
+                f.getTitle(),
             f.getGenre(),
-            f.getCast(),
+            f.getCasta(),
             f.getAgeRestriction(),
             f.getAwards(),
             f.getLanguages(),
@@ -75,10 +73,10 @@ public class FilmService {
     public List<FilmResponseDTO> searchByTitle(String sQuery){
         return repo.findByTitle(sQuery).stream().map( f -> new FilmResponseDTO(
             f.getId(),
-            f.getTitle(),
-            f.getReleaseYear(),
+                f.getReleaseYear(),
+                f.getTitle(),
             f.getGenre(),
-            f.getCast(),
+            f.getCasta(),
             f.getAgeRestriction(),
             f.getAwards(),
             f.getLanguages(),
@@ -92,10 +90,10 @@ public class FilmService {
     public List<FilmResponseDTO> searchByGenre(String sQuery){
         return repo.findByGenre(sQuery).stream().map( f -> new FilmResponseDTO(
             f.getId(),
-            f.getTitle(),
-            f.getReleaseYear(),
+                f.getReleaseYear(),
+                f.getTitle(),
             f.getGenre(),
-            f.getCast(),
+            f.getCasta(),
             f.getAgeRestriction(),
             f.getAwards(),
             f.getLanguages(),
@@ -109,10 +107,10 @@ public class FilmService {
     public List<FilmResponseDTO> searchByActor(String actor){
         return repo.searchByActor(actor).stream().map(f -> new FilmResponseDTO(
             f.getId(),
-            f.getTitle(),
-            f.getReleaseYear(),
+                f.getReleaseYear(),
+                f.getTitle(),
             f.getGenre(),
-            f.getCast(),
+            f.getCasta(),
             f.getAgeRestriction(),
             f.getAwards(),
             f.getLanguages(),
