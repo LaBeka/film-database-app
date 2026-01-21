@@ -15,7 +15,7 @@ public class Film {
     String title;
     int releaseYear;
     String genre;
-    List<String> casta;
+    String casta;
     int ageRestriction;
     @Column(name = "awards", nullable = true, unique = false)
     String awards;
@@ -32,12 +32,12 @@ public class Film {
     @JsonBackReference
     private List<Review> reviews;
 
-    public Film(Integer id, String title, Integer releaseYear, String genre, String cast, Integer ageRestriction, String awards, String languages, String aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
+    public Film(Integer id, String title, Integer releaseYear, String genre, String casta, Integer ageRestriction, String awards, String languages, String aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
         this.id = id;
         this.title = title;
         this.releaseYear = releaseYear;
         this.genre = genre;
-        this.casta = cast;
+        this.casta = casta;
         this.ageRestriction = ageRestriction;
         this.awards = awards;
         this.languages = languages;
@@ -88,11 +88,11 @@ public class Film {
         this.genre = genre;
     }
 
-    public List<String> getCast() {
+    public String getCast() {
         return casta;
     }
 
-    public void setCast(List<String> cast) {
+    public void setCast(String cast) {
         this.casta = cast;
     }
 

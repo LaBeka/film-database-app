@@ -50,5 +50,4 @@ public class User {
     @JsonBackReference
     private List<Review> reviews;
 
-    //when review entity is created add the relation to it.
 }
