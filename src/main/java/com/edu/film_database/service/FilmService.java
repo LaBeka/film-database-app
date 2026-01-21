@@ -3,6 +3,7 @@ package com.edu.film_database.service;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.dto.response.FilmResponseDTO;
 import com.edu.film_database.repo.FilmRepository;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -119,4 +120,9 @@ public class FilmService {
             f.getCamera()
         )).toList();
     }
+
+//    public FilmResponseDTO createNewFilm(FilmRequestDTO dto) {
+//        //map into Film;
+//        //map saved entity into FilmResponseDTO
+//    }
 }

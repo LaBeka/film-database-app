@@ -1,9 +1,14 @@
 package com.edu.film_database.dto.request;
 
+import jakarta.validation.constraints.NotNull;
+
 public class FilmRequestDTO {
 
     int id;
+    //@NotNull
     Integer releaseYear;
+
+    //@NotNull(message = )
     String title;
     String genre;
     String casta;
