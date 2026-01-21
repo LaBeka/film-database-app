@@ -1,5 +1,6 @@
 package com.edu.film_database.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -12,36 +13,48 @@ public class Film {
     int id;
 
     String title;
+    int releaseYear;
     String genre;
     List<String> casta;
     int ageRestriction;
-    List<String> awards;
-    List<String> langusges;
-    double aspectRatio;
-    String colorStatus;
-    String cameraUsed;
+    @Column(name = "awards", nullable = true, unique = false)
+    String awards;
+    @Column(name = "languages", nullable = true, unique = false)
+    String languages;
+    @Column(name = "aspect_ratio", nullable = true, unique = false)
+    String aspectRatio;
+    @Column(name = "color", nullable = true, unique = false)
+    String color;
+    @Column(name = "camera", nullable = true, unique = false)
+    String camera;
 
-    public Film(int id, String title, String genre, List<String> cast, int ageRestriction, List<String> awards, List<String> langusges, double aspectRatio, String colorStatus, String cameraUsed) {
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Review> reviews;
+
+    public Film(Integer id, String title, Integer releaseYear, String genre, String cast, Integer ageRestriction, String awards, String languages, String aspectRatio, String colorStatus, String cameraUsed, List<Review> reviews) {
         this.id = id;
         this.title = title;
+        this.releaseYear = releaseYear;
         this.genre = genre;
         this.casta = cast;
         this.ageRestriction = ageRestriction;
         this.awards = awards;
-        this.langusges = langusges;
+        this.languages = languages;
         this.aspectRatio = aspectRatio;
-        this.colorStatus = colorStatus;
-        this.cameraUsed = cameraUsed;
+        this.color = colorStatus;
+        this.camera = cameraUsed;
+        this.reviews = reviews;
     }
 
     public Film() {
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -52,6 +65,20 @@ public class Film {
     public void setTitle(String title) {
         this.title = title;
     }
+
+
+    public Integer getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(Integer releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public void setLanguages(String languages) {
+        this.languages = languages;
+    }
+
 
     public String getGenre() {
         return genre;
@@ -69,51 +96,59 @@ public class Film {
         this.casta = cast;
     }
 
-    public int getAgeRestriction() {
+    public Integer getAgeRestriction() {
         return ageRestriction;
     }
 
-    public void setAgeRestriction(int ageRestriction) {
+    public void setAgeRestriction(Integer ageRestriction) {
         this.ageRestriction = ageRestriction;
     }
 
-    public List<String> getAwards() {
+    public String getAwards() {
         return awards;
     }
 
-    public void setAwards(List<String> awards) {
+    public void setAwards(String awards) {
         this.awards = awards;
     }
 
-    public List<String> getLangusges() {
-        return langusges;
+    public String getLanguages() {
+        return languages;
     }
 
-    public void setLangusges(List<String> langusges) {
-        this.langusges = langusges;
+    public void setLanguage(String langusges) {
+        this.languages = langusges;
     }
 
-    public double getAspectRatio() {
+    public String getAspectRatio() {
         return aspectRatio;
     }
 
-    public void setAspectRatio(double aspectRatio) {
+    public void setAspectRatio(String aspectRatio) {
         this.aspectRatio = aspectRatio;
     }
 
-    public String getColorStatus() {
-        return colorStatus;
+    public String getColor() {
+        return color;
     }
 
-    public void setColorStatus(String colorStatus) {
-        this.colorStatus = colorStatus;
+    public void setColor(String color) {
+        this.color = color;
     }
 
-    public String getCameraUsed() {
-        return cameraUsed;
+    public String getCamera() {
+        return camera;
     }
 
-    public void setCameraUsed(String cameraUsed) {
-        this.cameraUsed = cameraUsed;
+    public void setCamera(String camera) {
+        this.camera = camera;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
     }
 }
