@@ -184,7 +184,77 @@ public class UserServiceTest {
         assertTrue(result.getRoles().contains("ADMIN"));
         Mockito.verify(userRepository).save(any(User.class));
     }
+    @Test
+    @DisplayName("updateUserRoles : Should rewrite user roles with new list of string roles")
+    void updateUserRole_Update_Success() {
+        String targetEmail = "test@email.com";
+        Set<String> newRolesStrings = Set.of("ADMIN", "USER");
 
+        Mockito.when(userRepository.findByEmail(targetEmail)).thenReturn(Optional.of(userUser));
+        Mockito.when(userRepository.findByEmail(adminUser.getEmail())).thenReturn(Optional.of(adminUser));
+
+        Mockito.when(roleRepository.findByName("ADMIN")).thenReturn(Optional.of(adminRole));
+        Mockito.when(roleRepository.findByName("USER")).thenReturn(Optional.of(userRole));
+
+        Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        UserResponseDto result = userService.updateUserRoles(targetEmail, newRolesStrings, adminUser.getEmail());
+
+        assertNotNull(result);
+        assertEquals(newRolesStrings.size(), result.getRoles().size());
+        Mockito.verify(userRepository).save(argThat(u -> u.getRoles().size() == 2));
+
+        assertTrue(result.isCurrentlyActive());
+        assertTrue(result.getRoles().contains("ADMIN") || result.getRoles().contains("USER"),
+                "User should have either ADMIN or USER role");
+        Mockito.verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("updateUserRoles: Should throw exception when admin tries to update own roles")
+    void updateUserRoles_Fail_SelfUpdate() {
+        String email = adminUser.getEmail();
+        Set<String> roles = Set.of("USER");
+
+        Mockito.when(userRepository.findByEmail(email)).thenReturn(Optional.of(adminUser));
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> userService.updateUserRoles(email, roles, email));
+
+        assertTrue(ex.getMessage().contains("can not promote his own role"));
+        Mockito.verify(userRepository, Mockito.never()).save(any());
+    }
+    @Test
+    @DisplayName("updateUserRoles: Should throw exception if target user is inactive")
+    void updateUserRoles_Fail_InactiveUser() {
+        // Arrange
+        userUser.setCurrentlyActive(false); // Make the user "deleted"
+        Mockito.when(userRepository.findByEmail("test@email.com")).thenReturn(Optional.of(userUser));
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.updateUserRoles("test@email.com", Set.of("ADMIN"), adminUser.getEmail()));
+    }
+
+    @Test
+    @DisplayName("updateUserRoles: Should throw exception if a provided role name does not exist")
+    void updateUserRoles_Fail_InvalidRole() {
+        // Arrange
+        String targetEmail = "test@email.com";
+        Set<String> roles = Set.of("NON_EXISTENT_ROLE");
+
+        Mockito.when(userRepository.findByEmail(targetEmail)).thenReturn(Optional.of(userUser));
+        Mockito.when(userRepository.findByEmail(adminUser.getEmail())).thenReturn(Optional.of(adminUser));
+
+        // Mock roleRepository to return empty for the fake role
+        Mockito.when(roleRepository.findByName("NON_EXISTENT_ROLE")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> userService.updateUserRoles(targetEmail, roles, adminUser.getEmail()));
+
+        assertTrue(ex.getMessage().contains("does not exist in the database"));
+    }
     // --- 4. deleteUserByEmail EXPECTATIONS --- should look at scenario not to do it second time
 
     @Test
