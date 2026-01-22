@@ -63,7 +63,7 @@ public class GetAllReviewsTest {
         review.setFilm(film);
 
         response_r = new ArrayList<>();
-        response_r.add(new ReviewResponseDto(review.getId(), user.getUsername(), review.getText(),
+        response_r.add(new ReviewResponseDto(review.getId(), user.getUsername(), user.getEmail(), review.getText(),
                 review.getDate(), review.getScore()));
 
         response_f = new ArrayList<>();
