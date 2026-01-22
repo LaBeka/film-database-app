@@ -395,7 +395,7 @@ public class UserControllersTest {
         mockMvc.perform(delete("/api/user/" + userUser.getEmail()))
                 .andDo(print())
                 .andExpect(status().isNotFound()) // Your service throws EntityNotFoundException here
-                .andExpect(jsonPath("$.message").value("User is already removed from db."));
+                .andExpect(jsonPath("$.message").value("User with email: 'test@mail.com' is already removed from db."));
     }
 
     @Test

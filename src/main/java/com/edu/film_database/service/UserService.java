@@ -39,10 +39,10 @@ public class UserService {
     private User getAuthorizedUser(String email) {
         Optional<User> principalFromDB = userRepository.findByEmail(email);
         if(principalFromDB.isEmpty()) {
-            throw new EntityNotFoundException("Logged user not found");
+            throw new EntityNotFoundException("Logged user with eamil: '"+ email + "' not found");
         }
         if(!principalFromDB.get().isCurrentlyActive()){
-            throw new EntityNotFoundException("Logged user is removed from database");
+            throw new EntityNotFoundException("Logged user with eamil: '"+ email + "'is removed from database");
         }
         return principalFromDB.get();
     }
@@ -57,25 +57,25 @@ public class UserService {
     }
 
     public UserResponseDto getUserById(int id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User by provided id not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User by provided id: '"+ id + "' not found"));
         return entityToResponseDto(user);
     }
 
     public UserResponseDto getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User by provided email: '" + email + "' not found"));
         return entityToResponseDto(user);
     }
 
     public UserResponseDto updateUserData(UserRequestUpdateDto dto, Principal principal) {
         User authorizedUser = getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User by provided email: '" + dto.getEmail() + "' not found"));
 
         if(!authorizedUser.getEmail().equals(dto.getEmail())) {
             throw new EntityNotFoundException("Authenticated user's email does not match with provided email. You can update only your own data.");        }
 
         if(!user.isCurrentlyActive()) {
-            throw new EntityNotFoundException("User is removed from db.");
+            throw new EntityNotFoundException("User with email: '" + dto.getEmail() + "' is removed from db.");
         }
         user.setUsername(dto.getUserName());
         user.setFullName(dto.getFullName());
@@ -88,14 +88,14 @@ public class UserService {
 
     public UserResponseDto updateUserRole(String email, Principal principal) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User by provided email: '" + email + "' not found"));
         User authorizedUser = getAuthorizedUser(principal.getName());
 
         if(authorizedUser.getEmail().equals(user.getEmail())) {
-            throw new EntityNotFoundException("Authenticated user can not promote his own role.");
+            throw new EntityNotFoundException("Authenticated user(with email: " + email + ") can not promote his own role.");
         }
         if(!user.isCurrentlyActive()) {
-            throw new EntityNotFoundException("User is removed from db.");
+            throw new EntityNotFoundException("User with email: '" + email + "' is removed from db.");
         }
 
         Set<Role> roles = new HashSet<>(user.getRoles());
@@ -116,10 +116,10 @@ public class UserService {
     public UserResponseDto deleteUserByEmail(String email, Principal principal) {
         User authorizedUser = getAuthorizedUser(principal.getName());
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User by provided email not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User by provided email: '" + email + "' not found"));
 
         if(!user.isCurrentlyActive()) {
-            throw new EntityNotFoundException("User is already removed from db.");
+            throw new EntityNotFoundException("User with email: '" + email + "' is already removed from db.");
         }
         if(user.getEmail().equals(authorizedUser.getEmail())) {
             throw new EntityNotFoundException("Provided email matches with logged user's email. You can not remove yourself from db.");
@@ -165,7 +165,7 @@ public class UserService {
 
     public UserResponseDto createNewUser(UserRequestDto dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new EntityExistsException("User with given email already exists.");
+            throw new EntityExistsException("User with given email: '" + dto.getEmail() + "' already exists.");
         }
         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new EntityNotFoundException("Default Role 'USER' not found in database"));
