@@ -183,4 +183,25 @@ public class UserService {
 
         return entityToResponseDto(savedUser);
     }
+
+    public UserResponseDto updateUserRoles(String email, Set<String> roles, String auth) {
+        User user = userRepository.findByEmail(email)
+                .filter(User::isCurrentlyActive)
+                .orElseThrow(() -> new EntityNotFoundException("User by provided email: '" + email + "' not found"));
+        User authorizedUser = getAuthorizedUser(auth);
+
+        if(authorizedUser.getEmail().equals(user.getEmail())) {
+            throw new EntityNotFoundException("Authenticated user(with email: " + email + ") can not promote his own role.");
+        }
+
+        Set<Role> entityRoles = roles.stream()
+                .map(r -> roleRepository.findByName(r)
+                        .orElseThrow(() -> new EntityNotFoundException("Role '" + r + "' does not exist in the database")))
+                .collect(Collectors.toSet());
+
+        user.setRoles(entityRoles);
+        userRepository.save(user);
+
+        return entityToResponseDto(user);
+    }
 }
