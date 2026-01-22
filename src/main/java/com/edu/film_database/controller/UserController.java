@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,5 +67,11 @@ public class UserController implements UserApi {
     public ResponseEntity<?> login(String email, String password) {
         String response = userService.generateToken(email, password);
         return  ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<UserResponseDto> updateRoles(String email, Set<String> roles, Principal principal) {
+        UserResponseDto updatedUser = userService.updateUserRoles(email, roles, principal.getName());
+        return ResponseEntity.ok(updatedUser);
     }
 }

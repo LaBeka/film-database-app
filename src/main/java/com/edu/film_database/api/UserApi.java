@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @RequestMapping(UserApi.API_PATH_DICTIONARY)
 @Tag(name = "Methods to work with User", description = UserApi.API_PATH_DICTIONARY)
@@ -70,4 +71,11 @@ public interface UserApi {
             @RequestParam @Email(message = "Email format is invalid") String email,
             @RequestParam @Size(min = 3, message = "Password must be at least 3 characters long") String password);
 
+    @PostMapping("/updateRoles/{email}")
+    @Operation(summary = "Update OTHER ROLES. Ypu can not update your own ROLES. Available for role: ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
+    ResponseEntity<UserResponseDto> updateRoles(
+            @Email(message = "Email format is invalid") @PathVariable String email,
+            @NotEmpty(message = "Roles list cannot be empty") @RequestBody Set<String> roles,
+            Principal principal);
 }
