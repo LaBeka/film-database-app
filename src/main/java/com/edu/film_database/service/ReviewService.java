@@ -57,7 +57,7 @@ public class ReviewService {
 
         if(user_tmp.isPresent()){
             List<Film> film_tmp = review_repo.findByUser(user_tmp.get())
-                    .stream().map(review -> review.getFilm()).distinct().toList();
+                    .stream().map(Review::getFilm).distinct().toList();
 
             return film_tmp.stream()
                     .map(film -> convertFromUserFilms(
@@ -78,13 +78,7 @@ public class ReviewService {
 
     private ReviewResponseDto getReviewsUserFilm(int id){
         Review review_tmp = review_repo.findById(id).get();
-        return new ReviewResponseDto(
-                review_tmp.getId(),
-                review_tmp.getUser().getUsername(),
-                review_tmp.getText(),
-                review_tmp.getDate(),
-                review_tmp.getScore()
-        );
+        return convertFromReview(review_tmp);
     }
 
     private FilmReviewResponseDto convertFromFilm(Film film){
@@ -102,16 +96,6 @@ public class ReviewService {
         );
     }
 
-    private ReviewResponseDto convertFromReview(Review review){
-        return new ReviewResponseDto(
-                review.getId(),
-                review.getUser().getUsername(),
-                review.getText(),
-                review.getDate(),
-                review.getScore()
-        );
-    }
-
     public FilmReviewResponseDto createReview(Principal principal, CreateReviewRequestDto dto){
         Optional<Film> film_tmp = film_repo.findById(dto.getFilmId());
         Review review_tmp;
@@ -124,12 +108,7 @@ public class ReviewService {
                                 user_repo.findByEmail(principal.getName()).get(),
                                 film_repo.findById(film_tmp.get().getId()).get()
             ));
-            return new FilmReviewResponseDto(film_tmp.get().getId(),
-                List.of(new ReviewResponseDto(review_tmp.getId(),
-                                              review_tmp.getUser().getUsername(),
-                                              review_tmp.getText(),
-                                              review_tmp.getDate(),
-                                              review_tmp.getScore())));
+            return convertFromFilmReview(review_tmp);
         }
         throw new FilmNotFoundException("Cannot find the film with id " + dto.getFilmId());
     }
@@ -141,12 +120,7 @@ public class ReviewService {
         if(review_tmp.isPresent()){
             if(review_tmp.get().getUser().equals(user_tmp)){
                 updateReviewFields(review_tmp.get(), dto);
-                return new FilmReviewResponseDto(review_tmp.get().getFilm().getId(),
-                        List.of(new ReviewResponseDto(review_tmp.get().getId(),
-                                                      review_tmp.get().getUser().getUsername(),
-                                                      review_tmp.get().getText(),
-                                                      review_tmp.get().getDate(),
-                                                      review_tmp.get().getScore())));
+                return convertFromFilmReview(review_tmp.get());
             }
             throw new ReviewNotUsersOwnReviewException(
                     "Cannot change other users review");
@@ -171,12 +145,7 @@ public class ReviewService {
         if(review_tmp.isPresent()){
             if(review_tmp.get().getUser().equals(user_tmp)){
                 review_repo.delete(review_tmp.get());
-                return new FilmReviewResponseDto(review_tmp.get().getFilm().getId(),
-                   List.of(new ReviewResponseDto(review_tmp.get().getId(),
-                                                 review_tmp.get().getUser().getUsername(),
-                                                 review_tmp.get().getText(),
-                                                 review_tmp.get().getDate(),
-                                                 review_tmp.get().getScore())));
+                return convertFromFilmReview(review_tmp.get());
             }
             throw new ReviewNotUsersOwnReviewException(
                     "Cannot delete other users review");
@@ -189,14 +158,25 @@ public class ReviewService {
         Optional<Review> review_tmp = review_repo.findById(index);
         if(review_tmp.isPresent()){
             review_repo.delete(review_tmp.get());
-            return new FilmReviewResponseDto(review_tmp.get().getFilm().getId(),
-               List.of(new ReviewResponseDto(review_tmp.get().getId(),
-                                             review_tmp.get().getUser().getUsername(),
-                                             review_tmp.get().getText(),
-                                             review_tmp.get().getDate(),
-                                             review_tmp.get().getScore())));
+            return convertFromFilmReview(review_tmp.get());
         }
         throw new ReviewNotFoundException("Cannot delete a review " +
                 "that does not exist");
+    }
+
+    private FilmReviewResponseDto convertFromFilmReview(Review review){
+        return new FilmReviewResponseDto(review.getFilm().getId(),
+                List.of(convertFromReview(review)));
+    }
+
+    private ReviewResponseDto convertFromReview(Review review){
+        return new ReviewResponseDto(
+                review.getId(),
+                review.getUser().getUsername(),
+                review.getUser().getEmail(),
+                review.getText(),
+                review.getDate(),
+                review.getScore()
+        );
     }
 }
