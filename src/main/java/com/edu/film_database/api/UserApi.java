@@ -34,7 +34,7 @@ public interface UserApi {
     ResponseEntity<UserResponseDto> getUserByID(@Positive @PathVariable("id") int id);
 
     @GetMapping("/get/email/{email}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Get user by email. Available for role: ADMIN")
     ResponseEntity<UserResponseDto> getUserByEmail(@Email(message = "Email format is invalid") @PathVariable("email") String email);
 

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -120,39 +121,44 @@ public class UserServiceTest {
             userService.createNewUser(dto);
         });
 
-        assertEquals("User with given email already exists.", exception.getMessage());
+        assertEquals("User with given email: 'existing@email.com' already exists.", exception.getMessage());
         Mockito.verify(userRepository, Mockito.never()).save(any(User.class));
     }
 
-    // --- 2. updateUserData EXPECTATIONS ---
+    // ------------------------------------------------------------------------------------------  updateUserData ---------------------------------------------------------------------------------------------------
 
     @Test
-    @DisplayName("updateUserData: Should update user's data (all except for password, email and currentlyActive)")
+    @DisplayName("updateUserData: Should update user's data when emails match")
     void updateUserData_Success() {
-        UserRequestUpdateDto dto = new UserRequestUpdateDto(adminUser.getUsername(), adminUser.getFullName(), adminUser.getEmail(),20);
+        UserRequestUpdateDto dto = new UserRequestUpdateDto("newUsername", "New Full Name", adminUser.getEmail(), 25);
 
-        Mockito.when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(adminUser));
+        Mockito.when(userRepository.findByEmail(adminUser.getEmail())).thenReturn(Optional.of(adminUser));
+
         Mockito.when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
         UserResponseDto result = userService.updateUserData(dto, principal);
 
         Mockito.verify(userRepository).save(argThat(user ->
-                result.getEmail().equals(dto.getEmail()) &&
-                        result.getRoles().contains(adminRole.getName()) &&
-                        result.isCurrentlyActive() &&
-                        result.getAge() > 1
+                user.getUsername().equals("newUsername") &&
+                user.getFullName().equals("New Full Name") &&
+                user.getAge() == 25 &&
+                user.getEmail().equals(adminUser.getEmail())
         ));
     }
 
     @Test
     @DisplayName("updateUserData: Should throw exception when updating someone else's data")
     void updateUserData_Forbidden() {
-        UserRequestUpdateDto dto = new UserRequestUpdateDto("SomeUser", "Hacker", "email@email.com", 20);
+        UserRequestUpdateDto dto = new UserRequestUpdateDto("Should throw exception", "Should throw exception", "test@email.com", 30);
         Mockito.when(userRepository.findByEmail("admin@email.com")).thenReturn(Optional.of(adminUser));
-        Mockito.when(userRepository.findByEmail("email@email.com")).thenReturn(Optional.of(userUser));
+        Mockito.when(userRepository.findByEmail("test@email.com")).thenReturn(Optional.of(userUser));
 
         assertThrows(EntityNotFoundException.class, () -> userService.updateUserData(dto, principal));
+
+        // Verify: Confirm that the save method was NEVER reached
+        Mockito.verify(userRepository, Mockito.never()).save(any(User.class));
     }
+
 
     @Test
     @DisplayName("updateUserRole: Should increase role count to 2 when adding ADMIN")

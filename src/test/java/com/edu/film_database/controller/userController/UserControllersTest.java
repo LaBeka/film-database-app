@@ -130,7 +130,7 @@ public class UserControllersTest {
     }
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("GET /get/email/{email} - Success")
+    @DisplayName("GET /get/email/{email} - For ROLE_ADMIN Success")
     void getUserByEmail_Success() throws Exception {
         mockMvc.perform(get("/api/user/get/email/" + userUser.getEmail()))
                 .andExpect(status().isOk())
@@ -138,10 +138,11 @@ public class UserControllersTest {
     }
     @Test
     @WithMockUser(roles = "USER") // Simulate a user WITHOUT Admin privileges
-    @DisplayName("403 Forbidden: GET /get/email/{email} - Fail for Non-Admin")
+    @DisplayName("GET /get/email/{email} - For ROLE_USER Success")
     void getUserByEmail_Forbidden() throws Exception {
         mockMvc.perform(get("/api/user/get/email/" + userUser.getEmail()))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName").value("testUser"));
     }
 
     @Test
@@ -394,7 +395,7 @@ public class UserControllersTest {
         mockMvc.perform(delete("/api/user/" + userUser.getEmail()))
                 .andDo(print())
                 .andExpect(status().isNotFound()) // Your service throws EntityNotFoundException here
-                .andExpect(jsonPath("$.message").value("User is already removed from db."));
+                .andExpect(jsonPath("$.message").value("User with email: 'test@mail.com' is already removed from db."));
     }
 
     @Test
