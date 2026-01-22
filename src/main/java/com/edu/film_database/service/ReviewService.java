@@ -57,7 +57,7 @@ public class ReviewService {
 
         if(user_tmp.isPresent()){
             List<Film> film_tmp = review_repo.findByUser(user_tmp.get())
-                    .stream().map(review -> review.getFilm()).distinct().toList();
+                    .stream().map(Review::getFilm).distinct().toList();
 
             return film_tmp.stream()
                     .map(film -> convertFromUserFilms(
@@ -166,12 +166,7 @@ public class ReviewService {
 
     private FilmReviewResponseDto convertFromFilmReview(Review review){
         return new FilmReviewResponseDto(review.getFilm().getId(),
-                List.of(new ReviewResponseDto(review.getId(),
-                                              review.getUser().getUsername(),
-                                              review.getUser().getEmail(),
-                                              review.getText(),
-                                              review.getDate(),
-                                              review.getScore())));
+                List.of(convertFromReview(review)));
     }
 
     private ReviewResponseDto convertFromReview(Review review){
