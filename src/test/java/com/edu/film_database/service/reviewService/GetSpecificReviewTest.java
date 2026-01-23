@@ -1,17 +1,16 @@
 package com.edu.film_database.service.reviewService;
 
-import com.edu.film_database.dto.request.UpdateReviewRequestDto;
+
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
 import com.edu.film_database.dto.response.ReviewResponseDto;
 import com.edu.film_database.exception.ReviewNotFoundException;
-import com.edu.film_database.exception.ReviewNotUsersOwnReviewException;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
 import com.edu.film_database.model.User;
+import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
-import com.edu.film_database.repo.UserRepository;
 import com.edu.film_database.service.ReviewService;
-import com.sun.security.auth.UserPrincipal;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteReviewAdminTest {
+public class GetSpecificReviewTest {
 
     @Mock
     private ReviewRepository review_repo;
 
     @Mock
-    private UserRepository user_repo;
+    private FilmRepository film_repo;
 
     @Spy
     @InjectMocks
@@ -51,10 +49,6 @@ public class DeleteReviewAdminTest {
     private Film film;
     private Review review;
     private User user;
-    private User other_user;
-    private UpdateReviewRequestDto dto;
-    private Principal principal;
-    private Principal principal_other;
 
 
     @BeforeEach
@@ -64,11 +58,6 @@ public class DeleteReviewAdminTest {
 
         user = new User();
         user.setUsername("testName");
-        user.setEmail("testName@somedomain.com");
-
-        other_user = new User();
-        user.setUsername("testName1");
-        user.setEmail("testName1@somedomain.com");
 
         review = new Review();
         review.setId(1);
@@ -87,33 +76,35 @@ public class DeleteReviewAdminTest {
 
         films = new ArrayList<>();
         films.add(film);
+    }
 
-        dto = new UpdateReviewRequestDto(1, review.getScore(), review.getText());
-
-        principal = new UserPrincipal(user.getEmail());
-        principal_other = new UserPrincipal("testName1@somedomain.com");
+    @AfterEach
+    public void clean(){
+        response_r = null;
+        response_f = null;
+        films = null;
+        film = null;
+        review = null;
+        user = null;
     }
 
     @Test
-    @DisplayName("deleteReviewAdmin with specified review present, " +
-            "should return confirmation of the review being deleted")
-    public void deleteReviewAdminPresent(){
-        when(review_repo.findById(1)).thenReturn(Optional.of(review));
+    @DisplayName("GetSpecificReview with matching review present, should return review")
+    public void getSpecificReviewPresent(){
+        when(review_repo.findById(review.getId())).thenReturn(Optional.of(review));
 
-        FilmReviewResponseDto result = review_service.deleteReviewAdmin(1);
+        ReviewResponseDto result = review_service.getSpecificReview(review.getId());
 
-        assertEquals(result, response_f.get(0));
+        assertEquals(response_r.get(0), result);
     }
 
     @Test
-    @DisplayName("deleteReviewAdmin with specified review not present, " +
-            "should throw ReviewNotFoundException")
-    public void deleteReviewAdminException(){
-        when(review_repo.findById(1)).thenReturn(Optional.empty());
+    @DisplayName("GetSpecificReview with no matching review present, should throw exception")
+    public void getSpecificReviewEmpty(){
+        when(review_repo.findById(review.getId() + 1)).thenReturn(Optional.empty());
 
         ReviewNotFoundException exception = assertThrows(ReviewNotFoundException.class,
-                () -> review_service.deleteReviewAdmin(1));
-        assertEquals("Cannot delete a review " +
-                "that does not exist", exception.getMessage());
+                () -> review_service.getSpecificReview(review.getId() + 1));
+        assertEquals("Cannot find review with id " + (review.getId() + 1), exception.getMessage());
     }
 }
