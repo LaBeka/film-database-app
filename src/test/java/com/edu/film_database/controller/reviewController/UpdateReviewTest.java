@@ -122,7 +122,7 @@ public class UpdateReviewTest {
         principal = new UserPrincipal("testUser@somedomain.com");
         principal_other = new UserPrincipal("testUser2@somedomain.com");
 
-        dtoOk = new UpdateReviewRequestDto(review_repo.findAll().get(0).getId(), "testFilm", 3, "test-text.update");
+        dtoOk = new UpdateReviewRequestDto(review_repo.findAll().get(0).getId(), 3, "test-text.update");
     }
 
     @Test

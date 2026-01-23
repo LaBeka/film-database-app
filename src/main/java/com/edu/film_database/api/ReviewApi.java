@@ -3,6 +3,7 @@ package com.edu.film_database.api;
 import com.edu.film_database.dto.request.CreateReviewRequestDto;
 import com.edu.film_database.dto.request.UpdateReviewRequestDto;
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
+import com.edu.film_database.dto.response.ReviewResponseDto;
 import com.edu.film_database.dto.response.UserResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,4 +56,9 @@ public interface ReviewApi {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete an existing review")
     public ResponseEntity<FilmReviewResponseDto> deleteReviewAdmin(@PathVariable int index);
+
+    @GetMapping("user/getSpecificReview/{index}")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "Get a specific review")
+    public ResponseEntity<ReviewResponseDto> getSpecificReview(@PathVariable int index);
 }

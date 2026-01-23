@@ -4,6 +4,7 @@ import com.edu.film_database.api.ReviewApi;
 import com.edu.film_database.dto.request.CreateReviewRequestDto;
 import com.edu.film_database.dto.request.UpdateReviewRequestDto;
 import com.edu.film_database.dto.response.FilmReviewResponseDto;
+import com.edu.film_database.dto.response.ReviewResponseDto;
 import com.edu.film_database.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,5 +56,10 @@ public class ReviewController implements ReviewApi {
     @Override
     public ResponseEntity<FilmReviewResponseDto> deleteReviewAdmin(@PathVariable int index){
         return ResponseEntity.ok(service.deleteReviewAdmin(index));
+    }
+
+    @Override
+    public ResponseEntity<ReviewResponseDto> getSpecificReview(@PathVariable int index){
+        return ResponseEntity.ok(service.getSpecificReview(index));
     }
 }

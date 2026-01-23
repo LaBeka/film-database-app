@@ -1,6 +1,5 @@
 package com.edu.film_database.controller.reviewController;
 
-import com.edu.film_database.dto.request.UpdateReviewRequestDto;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.model.Review;
 import com.edu.film_database.model.Role;
@@ -9,14 +8,12 @@ import com.edu.film_database.repo.FilmRepository;
 import com.edu.film_database.repo.ReviewRepository;
 import com.edu.film_database.repo.RoleRepository;
 import com.edu.film_database.repo.UserRepository;
-import com.sun.security.auth.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,20 +21,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class DeleteReviewAdminTest {
+public class GetSpecificReviewTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -61,10 +56,8 @@ public class DeleteReviewAdminTest {
     private User otherUser;
     private Film film;
     private Review review;
-    private Principal principal;
-    private Principal principal_other;
-    private UpdateReviewRequestDto dtoOk;
     private int film_tmp;
+    private int review_tmp;
 
     @BeforeEach
     public void setUp() {
@@ -103,7 +96,7 @@ public class DeleteReviewAdminTest {
 
         Authentication auth =
                 new UsernamePasswordAuthenticationToken(
-                        "testUser", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                        "testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -120,53 +113,28 @@ public class DeleteReviewAdminTest {
         review.setScore(5);
         review.setUser(otherUser);
         review.setFilm(film);
-        review_repo.save(review);
-
-        principal = new UserPrincipal("testUser@somedomain.com");
-        principal_other = new UserPrincipal("testUser2@somedomain.com");
-
-        dtoOk = new UpdateReviewRequestDto(1,3, "test-text.update");
+        review_tmp = review_repo.save(review).getId();
     }
 
     @Test
-    @DisplayName("DeleteReviewAdmin with review not by admin present, " +
-            "should return status 200 and message")
-    public void deleteReviewAdminPresent() throws Exception {
-        mockMvc.perform(get("/api/review/public/getAllReviews"))
+    @DisplayName("GetSpecificReview with matching review present," +
+            "should return status 200 and the review")
+    public void getSpecificReviewPresent() throws Exception {
+        mockMvc.perform(get("/api/review/user/getSpecificReview/" + (review_tmp)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].filmId").value(film_tmp))
-                .andExpect(jsonPath("$.[0].reviews.[0].text").value("test-text"))
-                .andExpect(jsonPath("$.[0].reviews.[0].score").value(5));
-
-        mockMvc.perform(delete("/api/review/admin/deleteReview/" +
-                        (review_repo.findAll().get(0).getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.filmId").value(film_tmp))
-                .andExpect(jsonPath("$.reviews.[0].text").value("test-text"))
-                .andExpect(jsonPath("$.reviews.[0].score").value(5));
-
-        mockMvc.perform(get("/api/review/public/getAllReviews"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].filmId").value(film_tmp))
-                .andExpect(jsonPath("$.[0].reviews").isEmpty());
+                .andExpect(jsonPath("$.index").value(review_tmp))
+                .andExpect(jsonPath("$.text").value(review.getText()))
+                .andExpect(jsonPath("$.score").value(review.getScore()));
     }
 
     @Test
-    @DisplayName("DeleteReviewAdmin with no review present, " +
-            "should return status 404 and message")
-    public void deleteReviewAdminNotPresent() throws Exception {
-        review_repo.deleteAll();
-
-        mockMvc.perform(delete("/api/review/admin/deleteReview/" + (film_tmp + 1))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
+    @DisplayName("GetSpecificReview with matching review present," +
+            "should return status 200 and the review")
+    public void getSpecificReviewEmpty() throws Exception {
+        mockMvc.perform(get("/api/review/user/getSpecificReview/" + (review_tmp + 1)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
-                        .value("Cannot delete a review " +
-                                "that does not exist"));
+                        .value("Cannot find review with id " + (review_tmp + 1)));
     }
+
 }

@@ -35,6 +35,14 @@ public class ReviewService {
         film_repo = filmRepo;
     }
 
+    public ReviewResponseDto getSpecificReview(int index){
+        Optional<Review> review_tmp = review_repo.findById(index);
+        if(review_tmp.isPresent()){
+            return convertFromReview(review_tmp.get());
+        }
+        throw new ReviewNotFoundException("Cannot find review with id " + index);
+    }
+
     public List<FilmReviewResponseDto> getAllReviews(){
         List<Film> film_tmp = film_repo.findAll();
         if(!film_tmp.isEmpty()){

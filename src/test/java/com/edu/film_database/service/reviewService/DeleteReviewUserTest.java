@@ -89,7 +89,7 @@ public class DeleteReviewUserTest {
         films = new ArrayList<>();
         films.add(film);
 
-        dto = new UpdateReviewRequestDto(1, film.getTitle(), review.getScore(), review.getText());
+        dto = new UpdateReviewRequestDto(1, review.getScore(), review.getText());
 
         principal = new UserPrincipal(user.getEmail());
         principal_other = new UserPrincipal("testName1@somedomain.com");
