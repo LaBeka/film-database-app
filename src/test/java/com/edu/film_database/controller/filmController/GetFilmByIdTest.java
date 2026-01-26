@@ -12,9 +12,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -25,7 +27,7 @@ public class GetFilmByIdTest {
     private MockMvc mockMvc;
 
     @Autowired
-    FilmRepository repo;
+    private FilmRepository repo;
 
 
     private Film film;
@@ -45,13 +47,14 @@ public class GetFilmByIdTest {
     @Test
     @DisplayName("getFilm with one matching film, should return status 200 and the film")
     public void getFilmById() throws Exception{
-        mockMvc.perform(get("/film/id/1"))
+
+        mockMvc.perform(get("/api/film/id/" + filmId))
                 .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$.filmId").value(filmId))
-                .andExpect((ResultMatcher) jsonPath("$.title").value("testFilm"))
-                .andExpect((ResultMatcher) jsonPath("$.releaseYear").value(1901))
-                .andExpect((ResultMatcher) jsonPath("$.genre").value("test"))
-                .andExpect((ResultMatcher) jsonPath("$.aspectRatio").value("4:3"));
+                .andExpect(jsonPath("$.id").value(filmId))
+                .andExpect(jsonPath("$.title").value("testFilm"))
+                .andExpect(jsonPath("$.releaseYear").value(1901))
+                .andExpect(jsonPath("$.genre").value("test"))
+                .andExpect(jsonPath("$.aspectRatio").value("4:3"));
     }
 
 

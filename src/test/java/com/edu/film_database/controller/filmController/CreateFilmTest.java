@@ -57,7 +57,7 @@ public class CreateFilmTest {
     @Test
     @DisplayName("Create film´, should be successful")
     public void createFilm() throws Exception {
-        mockMvc.perform( post("/film/create").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform( post("/api/film/create").contentType(MediaType.APPLICATION_JSON)
                          .content(new ObjectMapper().writeValueAsString(DTO))
                          .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())

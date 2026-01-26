@@ -18,41 +18,29 @@ import java.util.Optional;
 
     @ActiveProfiles("test")
     @DataJpaTest
-    @SpringBootTest
-    @AutoConfigureMockMvc(addFilters = false)
     public class FindByIdTest {
 
         @Autowired
         FilmRepository repo;
 
-
-
-        private int ID = 1;
+        private int ID;
+        private Film film;
 
         @BeforeEach
         public void setUp(){
             repo.deleteAll();
-
-            Film film = new Film();
+            film = new Film();
             film.setTitle("testFilm");
             film.setReleaseYear(1901);
             film.setGenre("test");
-            repo.save(film);
-
+            ID = repo.save(film).getId();
         }
 
         @Test
         @DisplayName("Find film by id, should return one film")
         public void findByIdPresent() throws Exception{
             Optional<Film> op = repo.findById(ID);
-            if(op.isPresent()){
-                Film filmFromRepo = op.get();
-                assertEquals("testFilm" , filmFromRepo.getTitle());
-                assertEquals(1901,  filmFromRepo.getReleaseYear());
-                assertEquals("test" , filmFromRepo.getGenre());
-            }
-            else {throw new Exception(); }
-
+            assertEquals(film, op.get());
         }
 
         @Test
@@ -60,13 +48,6 @@ import java.util.Optional;
         public void findByIdEmpty() throws Exception {
             repo.deleteAll();
             Optional<Film> op = repo.findById(ID);
-            if (op.isEmpty()){
-                // ALL GOOD
-            }
-            else {
-             throw new Exception();
-            }
-
+            assertEquals(Optional.empty(), op);
         }
-
     }

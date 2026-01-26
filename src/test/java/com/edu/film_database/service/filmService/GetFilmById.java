@@ -36,6 +36,7 @@ public class GetFilmById {
     @BeforeEach
     public void setUp(){
         film = new Film();
+        film.setId(ID);
         film.setTitle("testFilm");
 
         DTO = new FilmResponseDTO();
@@ -48,7 +49,7 @@ public class GetFilmById {
     @DisplayName("Film from FindFilmByID(), should return film")
     public void getFilmById(){
 
-        when(repo.getById(ID)).thenReturn(film);
+        when(repo.findById(ID)).thenReturn(Optional.of(film));
 
         FilmResponseDTO fromService = service.findById(ID);
 
