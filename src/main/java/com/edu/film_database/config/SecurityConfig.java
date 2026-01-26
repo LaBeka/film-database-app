@@ -60,7 +60,7 @@ public class SecurityConfig {
                                 "/api/review/public/getAllReviews",
                                 "/api/review/public/getByFilm/**",
                                 "/api/test/**",
-                                "/film/**"
+                                "/api/film/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
