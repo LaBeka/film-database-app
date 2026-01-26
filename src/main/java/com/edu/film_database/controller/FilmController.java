@@ -1,8 +1,10 @@
 package com.edu.film_database.controller;
 
+import com.edu.film_database.dto.request.FilmRequestDTO;
 import com.edu.film_database.dto.request.UserRequestDto;
 import com.edu.film_database.dto.response.FilmResponseDTO;
 import com.edu.film_database.dto.response.UserResponseDto;
+import com.edu.film_database.model.Film;
 import com.edu.film_database.service.FilmService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -57,10 +60,9 @@ public class FilmController {
            return ResponseEntity.ok(service.searchByActor(actor));
     }
 
-//    @PostMapping("/create")
-//    ResponseEntity<FilmResponseDTO> createNewFilm(@Valid @RequestBody FilmRequestDTO dto){
-//        return ResponseEntity.ok(service.createNewFilm(dto));
-//    }
-
+    @PostMapping("/create")
+    public ResponseEntity<FilmResponseDTO> createFilm(@Valid @RequestBody FilmRequestDTO req, Principal principal ){
+        return ResponseEntity.ok(service.createFilm(req));
+    }
 
 }

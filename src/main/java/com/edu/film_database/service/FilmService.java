@@ -1,5 +1,6 @@
 package com.edu.film_database.service;
 
+import com.edu.film_database.dto.request.FilmRequestDTO;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.dto.response.FilmResponseDTO;
 import com.edu.film_database.repo.FilmRepository;
@@ -125,4 +126,39 @@ public class FilmService {
 //        //map into Film;
 //        //map saved entity into FilmResponseDTO
 //    }
+
+    public FilmResponseDTO createFilm(FilmRequestDTO req){
+        Film film = repo.save(new Film(
+            req.getTitle(),
+            req.getReleaseYear(),
+            req.getGenre(),
+            req.getCasta(),
+            req.getAgeRestriction(),
+            req.getAwards(),
+            req.getLanguages(),
+            req.getAspectRatio(),
+            req.getColor(),
+            req.getCamera()
+        ));
+
+
+        return new FilmResponseDTO(
+                film.getId(),
+                film.getReleaseYear(),
+                film.getTitle(),
+                film.getGenre(),
+                film.getCasta(),
+                film.getAgeRestriction(),
+                film.getAwards(),
+                film.getLanguages(),
+                film.getAspectRatio(),
+                film.getColor(),
+                film.getCamera()
+
+        );
+
+
+    }
+
+
 }

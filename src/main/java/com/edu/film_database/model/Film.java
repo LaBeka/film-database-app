@@ -47,6 +47,19 @@ public class Film {
         this.reviews = reviews;
     }
 
+    public Film(String title, Integer releaseYear, String genre, String casta, Integer ageRestriction, String awards, String languages, String aspectRatio, String colorStatus, String cameraUsed) {
+        this.title = title;
+        this.releaseYear = releaseYear;
+        this.genre = genre;
+        this.casta = casta;
+        this.ageRestriction = ageRestriction;
+        this.awards = awards;
+        this.languages = languages;
+        this.aspectRatio = aspectRatio;
+        this.color = colorStatus;
+        this.camera = cameraUsed;
+    }
+
     public Film() {
     }
 

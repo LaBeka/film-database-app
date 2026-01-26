@@ -1,17 +1,21 @@
 package com.edu.film_database.dto.request;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class FilmRequestDTO {
+    @NotNull(message = "Requires a title")
+    @NotBlank
+    String title;
 
-    int id;
-    //@NotNull
+    @NotNull(message = "Requires a release year")
     Integer releaseYear;
 
-    //@NotNull(message = )
-    String title;
     String genre;
     String casta;
+
+    @Min(value = 1, message = "For all ages: leave blank")
     Integer ageRestriction;
     String awards;
     String languages;
@@ -19,14 +23,12 @@ public class FilmRequestDTO {
     String color;
     String camera;
 
-
     public FilmRequestDTO() {
     }
 
-    public FilmRequestDTO(int id, Integer releaseYear, String title, String genre, String casta, Integer ageRestriction, String awards, String languages, String aspectRatio, String color, String camera) {
-        this.id = id;
-        this.releaseYear = releaseYear;
+    public FilmRequestDTO(String title, Integer releaseYear, String genre, String casta, Integer ageRestriction, String awards, String languages, String aspectRatio, String color, String camera) {
         this.title = title;
+        this.releaseYear = releaseYear;
         this.genre = genre;
         this.casta = casta;
         this.ageRestriction = ageRestriction;
@@ -35,14 +37,6 @@ public class FilmRequestDTO {
         this.aspectRatio = aspectRatio;
         this.color = color;
         this.camera = camera;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public Integer getReleaseYear() {

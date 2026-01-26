@@ -19,8 +19,8 @@ public class FilmResponseDTO {
 
     public FilmResponseDTO(int id, Integer releaseYear, String title, String genre, String casta, Integer ageRestriction, String awards, String languages, String aspectRatio, String color, String camera) {
         this.id = id;
-        this.releaseYear = releaseYear;
         this.title = title;
+        this.releaseYear = releaseYear;
         this.genre = genre;
         this.casta = casta;
         this.ageRestriction = ageRestriction;
