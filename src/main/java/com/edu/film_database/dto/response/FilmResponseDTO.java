@@ -1,5 +1,7 @@
 package com.edu.film_database.dto.response;
 
+import java.util.Objects;
+
 public class FilmResponseDTO {
 
     private int id;
@@ -19,8 +21,8 @@ public class FilmResponseDTO {
 
     public FilmResponseDTO(int id, Integer releaseYear, String title, String genre, String casta, Integer ageRestriction, String awards, String languages, String aspectRatio, String color, String camera) {
         this.id = id;
-        this.releaseYear = releaseYear;
         this.title = title;
+        this.releaseYear = releaseYear;
         this.genre = genre;
         this.casta = casta;
         this.ageRestriction = ageRestriction;
@@ -117,5 +119,34 @@ public class FilmResponseDTO {
 
     public void setCamera(String camera) {
         this.camera = camera;
+    }
+
+    @Override
+    public String toString() {
+        return "FilmResponseDTO{" +
+                "id=" + id +
+                ", releaseYear=" + releaseYear +
+                ", title='" + title + '\'' +
+                ", genre='" + genre + '\'' +
+                ", casta='" + casta + '\'' +
+                ", ageRestriction=" + ageRestriction +
+                ", awards='" + awards + '\'' +
+                ", languages='" + languages + '\'' +
+                ", aspectRatio='" + aspectRatio + '\'' +
+                ", color='" + color + '\'' +
+                ", camera='" + camera + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        FilmResponseDTO that = (FilmResponseDTO) o;
+        return id == that.id && Objects.equals(releaseYear, that.releaseYear) && Objects.equals(title, that.title) && Objects.equals(genre, that.genre) && Objects.equals(casta, that.casta) && Objects.equals(ageRestriction, that.ageRestriction) && Objects.equals(awards, that.awards) && Objects.equals(languages, that.languages) && Objects.equals(aspectRatio, that.aspectRatio) && Objects.equals(color, that.color) && Objects.equals(camera, that.camera);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, releaseYear, title, genre, casta, ageRestriction, awards, languages, aspectRatio, color, camera);
     }
 }
