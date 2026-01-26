@@ -1,6 +1,7 @@
 package com.edu.film_database.service;
 
 import com.edu.film_database.dto.request.FilmRequestDTO;
+import com.edu.film_database.exception.FilmNotFoundException;
 import com.edu.film_database.model.Film;
 import com.edu.film_database.dto.response.FilmResponseDTO;
 import com.edu.film_database.repo.FilmRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -37,9 +39,14 @@ public class FilmService {
     }
 
 
-    public FilmResponseDTO findById(int id){
+    public FilmResponseDTO findById(int id) throws FilmNotFoundException{
         Optional<Film> filmOption = repo.findById(id);
-        Film film = filmOption.orElseThrow();
+        Film film;
+        try{
+            film = filmOption.get();
+        } catch (NoSuchElementException e) {
+            throw new FilmNotFoundException("No film in database matches that Id");
+        }
         return new FilmResponseDTO(
             film.getId(),
                 film.getReleaseYear(),
