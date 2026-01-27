@@ -100,4 +100,145 @@ Takes a JSON input of a film and returns it again (with an id) after saving it t
 >>{"id":3,"title" : "Inception", "releaseYear":2010, "genre":"Adventure"}
 
 ### 4.3 Review
+
+Api for displaying and editing reviews.
+####
+
+To run locally use http://localhost:8080/ + <Endpoint-URL>
+
+###
+
+#### 4.3.1 Get all reviews(Get-mapping)
+
+Return all the current reviews and status 200, or empty list and status  
+200 if there are no reviews.
+
+>Access: Public access
+
+>URL: *api/review/public/getAllReviews*
+
+Input: *No input*
+
+###
+
+#### 4.3.2 Get review by filmId(Get-Mapping)
+
+Returns the reviews for the specified film and status 200 if successful, or  
+exception with status 404 if the film is absent.
+
+>Access: Public access
+
+>URL: *api/review/public/getByFilm/* < filmId >
+
+filmId: *The index of the film*
+
+###
+
+#### 4.3.3 get review by user-email(Get-Mapping)
+
+Returns the reviews from the user with the specified email and status 200
+if successful, or exception with status 404 if the user is not found.
+
+>Access: When logged in as USER
+
+>URL: *api/review/user/getByUser/* < email >
+
+email: *The email of the author of the review*
+
+###
+
+#### 4.3.4 Create a new review(Post-Mapping)
+
+Creates a new Review and returns the review with status 200 if successful,  
+or exception with status 404 when specified film is absent.
+
+>Access: When logged in as USER
+
+>URL: *api/review/user/createReview*
+
+Input: *JSON with format described below*
+
+Type description:
+
+>reviewIndex : *Int*  
+score : *Int*  
+text : *String*
+
+Example:
+
+```json
+{"reviewIndex": 1, "score": 7, "text": "The film was good"}
+```
+
+###
+
+
+#### 4.3.5 Update an existing review(Patch-Mapping)
+
+Updates an existing review with the specified index and status 200
+if the update was successful, exception 404 if the review is not found,
+or exception 400 if the user tries to update a review not authored by
+the user sending the request.
+
+>Access: When logged in as USER
+
+>URL: api/review/user/updateReview
+
+Input: *JSON with format described below*
+
+Type description:
+
+>reviewIndex : *Int*  
+score : *Int*  
+text : *String*
+
+Example:
+
+```json
+{"reviewIndex": 1, "score": 5, "text": "changed my mind"}
+```
+
+###
+
+#### 4.3.6 Delete a specific review by logged in user(Delete-Mapping)
+
+Deletes the specified review and status 200 if the review
+exists and are authored by the user sending the request,
+exception 404 if the review is not found, or exception 400 if
+the user tries to delete a review not authored by the user
+sending the request.
+
+>Access: When logged in as USER
+
+>URL: *api/review/user/deleteReview/* < index >
+
+index: *The index of the review to be deleted.*
+
+###
+
+#### 4.3.7 Delete any review (Delete-Mapping)
+
+Deletes the specified review and status 200 if the review exists, or exception
+with status 404 if the review does not exist.
+
+>Access: When logged in as ADMIN
+
+>URL: *api/review/admin/deleteReview/* < index >
+
+index: *The index of the review to be deleted.*
+
+###
+
+#### 4.3.8 Get a specific review by review index(Get-Mapping)
+
+Returns the review with the specified index and status 200 if successful, or
+exception 404 if the review was not found.
+
+>Access: When logged in as USER
+
+>URL: *api/review/user/getSpecificReview/* < index >
+
+index: *Index of the review to get.*
+
+
 ## 5 Known limitations
