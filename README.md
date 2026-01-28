@@ -6,101 +6,85 @@
 ## 2 Technology used
 The project uses java running springboot and have implemented a REST-API
 The project can be run locally but intends to be running in a docker compose in the cloud
+
 ## 3 How to run project (local and docker)
+
+### 3.1 Local
+To run the project locally you first need to have a mysql instance running.
+If not, download and install the mysql database from the official website.
+Project have been tested with versions 8.0 and 8.4. Go into the
+*application.properties* file and change the password to your own password 
+for the mysql-server before running the application. 
+
+Next login to your mysql server and create an empty database with the
+name.
+> *film_data_db*
+
+The command is
+
+> *CREATE DATABASE film_data_db;*
+
+If you like copy-paste like me :p.
+
+After this you could either run it through maven or using your ide. The main 
+method is located in file *FilmDatabaseApplication.java*. If you run it through an ide
+make sure to go into the pom.xml and update the dependencies first.
+
+if you run it through maven use the following command.
+
+> *mvn clean install -DskipTests exec:java*
+
+Make sure you have java development kit version 21 installed before
+running the maven command.
+
+### 3.2 Docker
+
+Just run the following command.
+
+> *docker compose up --build*
+
+### 3.3 How to test the api
+The api could be tested through swagger ui.
+
+>URL = http://localhost:8080/swagger-ui/index.html 
+
+To login use the login endpoint *user/login* and copy the token created.
+After that at the start of the page there is an authorize button. Click that
+and paste the token into the field. There are 2 users that have been created for testing purposes.
+
+User 1 asmith with roles USER and ADMIN
+
+>email: *alice@example.com*  
+>password: *pass*  
+
+USER 2 jdoe with role ADMIN  
+
+>email: *john@example.com*  
+>password: *pass*
+
+After this you can test the api.
+
 ## 4 Api-overview and endpoints
  
 ### 4.1 User
-###
-#### 4.1.1 List of all active users(get-mapping)
-Return list of all active users and status 200, or empty list and status.
-
->Access: ADMIN access
-> 
->URL: *api/user/get/list*
-> 
-Input: *No input*
-
-#### 4.1.2 Get user by id(get-mapping)
-Return selected user by id and return status 200. If Not found return status 404.
-
->Access: USER and ADMIN access
-> 
->URL: */api/user/id/{id}*
-> 
-Input: *@Valid @PathVariable("userId")*
-
-#### 4.1.3 Get user by email(get-mapping)
-Return selected user by email and status 200, if not found return status 404.
-
->Access: ADMIN access
-> 
->URL: */api/user/email/{email}*
->
-Input: *@Valid @PathVariable("email")*
-
-
-#### 4.1.4 Create new user(post-mapping)
-Create new user with default USER_ROLE and return created user with status 200. If email is taken stop creating new user and return code 400 with its message
-
->Access: public access
->
->URL: */api/user/create*
->
-Input: *@Valid @RequestBody UserRequestDto*
-
-
-#### 4.1.5 Update user's data(put-mapping)
-Update your own data(all properties except for email, roles and password) and return updated user with status 200. 
-If emails of authenticated user and user who is getting updated do not match return status 400.
-
->Access: USER or ADMIN access
->
->URL: */api/user/update/{email}*
->
-Input: *@Valid @RequestBody UserRequestUpdateDto*
-
-#### 4.1.6 Promote ROLES (post-mapping)
-Promote OTHER user's 'USER' role to 'ADMIN' and return promoted user with status 200.
-If you try to promote your own role it returns status 404. 
-
->Access: ADMIN access
->
->URL: */api/user/promoteUserToAdmin/{email}*
->
-Input: *@Valid @PathVariable("email")*
-
-#### 4.1.7 Delete user by email(delete-mapping)
-Soft deactivation of user by email and return deactivated user with status 200.
-If you try to deactivate yourself it returns status 409.
-
->Access: ADMIN access
->
->URL: */api/user/{email}*
->
-Input: *@Valid @PathVariable("email")*
-
-
-#### 4.1.8 Generate JWT-token(post-mapping)
-Generate token for authentication to log in and return token with code 200.
-If password and email not found or not match returns status 404.
-
->Access: PUBLIC access
->
->URL: *api/user/login*
->
-Input: *@Valid @RequestParam(String: email & password)*
-
-
-#### 4.1.9 Update roles(post-mapping)
-Rewrite someone's roles with new List<Roles>  and return promoted user with status 200.
-If you try to promote your own role it returns status 404.
-
->Access: ADMIN access
->
->URL: */api/user/updateRoles/{email}*
->
-Input: *@Valid @PathVariable("email") @RequestBody Set<String> *
-
+4.1.1 
+#### URL: @GetMapping"/api/user/get/list"; description: "List of all active users. No Parameter required; Available for role: ADMIN"
+4.1.2
+#### URL: @GetMapping"/api/user/id/{id}"; description: "Get user by id. Valid@PathVariable("id") required; Available for role: USER and ADMIN"
+4.1.3
+#### URL: @GetMapping"/api/user/email/{email}"; description: "Get user by email. Available for role: ADMIN; Valid@PathVariable("email") required;"
+4.1.4
+#### URL: @PostMapping("/api/user/create"); description: Create new user with default 'USER' role and send back created UserResponseDto. If email is taken throws exception404/400/403. NO ROLE required;
+4.1.5
+#### URL:  @PutMapping("/api/user/update/{email}"); description: Update your own data, throws exception 400 if you try update someone else's data. @Valid @RequestBody UserRequestUpdateDto required; Available for roles: USER or ADMIN
+4.1.6
+#### URL: @PostMapping("/api/user/promoteUserToAdmin/{email}"); description: Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict-409 exception. Available for role: ADMIN; Valid@PathVariable("email") required;"
+4.1.7
+#### URL: @DeleteMapping("v/{email}"); description: Delete user by email. If you try to remove yourself from db it throws exception 409. Available for role: ADMIN; Valid@PathVariable("email") required;"
+4.1.8
+#### URL: @PostMapping("/api/user/login"); description: Create token for authentication to log in. NO ROLE required; Valid@@RequestParam(Strign: email&password) required;"
+4.1.9
+#### URL: @PostMapping("/api/user/updateRoles/{email}"); description: Update only OTHER's ROLES. Rewrite omeone's roles with new List<roles>. Available for role: ADMIN; Valid@PathVariable("email") & Valid@RequestBody Set<String> roles are required;"
  
 ### 4.2 Film
 
@@ -130,7 +114,7 @@ Example:
 
 
 #### 4.2.3 ID
-Returns one film with matching **id**, the film has all avaiable fields
+Returns one film with matching **id**, the film has all avaiable fields  
 URL: `/api/film/id/<filmId>`
 filmId:  the unique **ID** of a film  
 Example:
@@ -189,7 +173,10 @@ Example:
 
 ### 4.3 Review
 
-Api for displaying and editing reviews.
+Api for displaying, creating and editing reviews. Make sure to use the
+*Bearer-token* when trying to access the protected endpoints. Can be
+accuired through the *user/login* endpoint.
+
 ####
 
 To run locally use http://localhost:8080/ + < Endpoint-URL >
@@ -244,18 +231,18 @@ or exception with status 404 when specified film is absent.
 
 >URL: *api/review/user/createReview*
 
-Input: *JSON with format described below*
+Input: *JSON Request body with format described below*
 
 Type description:
 
->reviewIndex : *Int*  
+>filmId : *Int*  
 score : *Int*  
 text : *String*
 
 Example:
 
 ```json
-{"reviewIndex": 1, "score": 7, "text": "The film was good"}
+{"filmId": 1, "score": 7, "text": "The film was good"}
 ```
 
 ###
@@ -272,7 +259,7 @@ the user sending the request.
 
 >URL: api/review/user/updateReview
 
-Input: *JSON with format described below*
+Input: *JSON Request body with format described below*
 
 Type description:
 
@@ -330,3 +317,17 @@ index: *Index of the review to get.*
 
 
 ## 5 Known limitations
+No known limitations in the functionality. When deploying the application,
+database scaling needs to be done manually in the current version. The
+application has been tested with java jdk 21 and mysql 8.0 and 8.4, so
+cannot vouch for the application working with anything else at the moment
+of writing.
+
+## 6 Contributors
+
+LaBeka : Addition Master, so many new options.
+
+AnthonyRG : Front-end Master, good when you really only done backend
+and embedded seriously at least.
+
+DKWA0000 : "PS not so coherent, but decent implementations :p".
