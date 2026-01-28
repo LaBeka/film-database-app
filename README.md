@@ -31,73 +31,88 @@ URL: @PostMapping("/updateRoles/{email}"); description: Update only OTHER's ROLE
  
 ### 4.2 Film
 
-"/api/film
+A API for displaying and creating films
 
-STATUS
-URL: `/api/film/status`
-Returns URL: "OK" 
+to run locally use http://localhost:8080/<ENDPOINT>
+
+#### 4.2.1 STATUS
 Similarly to a heartbeat it checks that the API is live
-ex.
+URL: `/api/film/status`
+Returns: "OK"    
+Example:
 >>/api/film/status
 >
 >>OK
 
 
-
-ALL
-URL: `/api/film/all`
+#### 4.2.2 ALL
 Returns a list of all films
 The films within the list includs all avaiable fields
+URL: `/api/film/all`  
+Example:
 >>/api/film/all
 >
 >>[{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":null,"casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null},
 >>{"id":2,"releaseYear":1968,"title":"2001: A Space Odyssey","genre":null,"casta":null,"ageRestriction":11,"awards":null,"languages":null,"aspectRatio":"22:10","color":null,"camera":null}]
 
 
-ID
-URL: `/api/film/id/{id}`
+#### 4.2.3 ID
 Returns one film with matching **id**, the film has all avaiable fields
+URL: `/api/film/id/<filmId>`
+filmId:  the unique **ID** of a film  
+Example:
 >>/api/film/id/1
 >
 >>{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":null,"casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null}
 
-FIND BY TITLE
-URL: `/api/film/title/{title}`
-Returns one film matching the title compleatly
+#### 4.2.4 FIND BY TITLE
+Returns one film matching the **title** compleatly
+URL: `/api/film/title/<title>`
+title: the film title  
+Example:
 >>/api/film/title/Inception 
 >
 >>{"id":3,"releaseYear":2010,"title":"Inception","genre":null,"casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"71:31","color":"color","camera":null}
 
-SEARCH BY TITLE
-URL: `/api/film/search/{title}`
-Returns all films with partial title match 
+#### 4.2.5 SEARCH BY TITLE
+Returns all films with partial **title** match 
+URL: `/api/film/search/<title>`
+title: the film title  
+Example:
 >>/api/film/search/Citizen
 >
->>{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":null,"casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null}
+>>[{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":null,"casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null}, ...]
 
-GENRE
-URL: `/api/film/genre/{genre}`
+#### 4.2.6 GENRE
 Returns all films matching **genre**
->>/api/film/genre/Drama
+URL: `/api/film/genre/<genre>`
+genre: any film genre  
+Example:
+>>/api/film/genre/drama
 >
->>[{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":"Drama","casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null}, ... ]
+>>[{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":"drama","casta":null,"ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null}, ... ]
 
-ACTOR
-URL: `/api/film/actor/{actor}`
+#### 4.2.6 ACTOR
 Returns all films that have **actor** in the casta (sic) field
+URL: `/api/film/actor/<actor>`
+actor: the name of a cast member  
+Example:
 >>/api/film/actor/Welles
 >
 >>[{"id":1,"releaseYear":1941,"title":"Citizen Kane","genre":"Drama","casta":"Orson Welles, Dorothy Comingore","ageRestriction":15,"awards":null,"languages":null,"aspectRatio":"1.37:1","color":"Black-and-white","camera":null}, ... ]
 
 
-CREATE
-URL: `/api/film/create`
+#### 4.2.7 CREATE
 Takes a JSON input of a film and returns it again (with an id) after saving it to the database
+URL: `/api/film/create`  
+Example:
 >>/api/film/create
 >
 >>{"title" : "Inception", "releaseYear":2010, "genre":"Adventure"}
 >
+>>```json
 >>{"id":3,"title" : "Inception", "releaseYear":2010, "genre":"Adventure"}
+```
 
 ### 4.3 Review
 
