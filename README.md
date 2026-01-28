@@ -67,24 +67,92 @@ After this you can test the api.
 ## 4 Api-overview and endpoints
  
 ### 4.1 User
-4.1.1 
-#### URL: @GetMapping"/api/user/get/list"; description: "List of all active users. No Parameter required; Available for role: ADMIN"
-4.1.2
-#### URL: @GetMapping"/api/user/id/{id}"; description: "Get user by id. Valid@PathVariable("id") required; Available for role: USER and ADMIN"
-4.1.3
-#### URL: @GetMapping"/api/user/email/{email}"; description: "Get user by email. Available for role: ADMIN; Valid@PathVariable("email") required;"
-4.1.4
-#### URL: @PostMapping("/api/user/create"); description: Create new user with default 'USER' role and send back created UserResponseDto. If email is taken throws exception404/400/403. NO ROLE required;
-4.1.5
-#### URL:  @PutMapping("/api/user/update/{email}"); description: Update your own data, throws exception 400 if you try update someone else's data. @Valid @RequestBody UserRequestUpdateDto required; Available for roles: USER or ADMIN
-4.1.6
-#### URL: @PostMapping("/api/user/promoteUserToAdmin/{email}"); description: Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict-409 exception. Available for role: ADMIN; Valid@PathVariable("email") required;"
-4.1.7
-#### URL: @DeleteMapping("v/{email}"); description: Delete user by email. If you try to remove yourself from db it throws exception 409. Available for role: ADMIN; Valid@PathVariable("email") required;"
-4.1.8
-#### URL: @PostMapping("/api/user/login"); description: Create token for authentication to log in. NO ROLE required; Valid@@RequestParam(Strign: email&password) required;"
-4.1.9
-#### URL: @PostMapping("/api/user/updateRoles/{email}"); description: Update only OTHER's ROLES. Rewrite omeone's roles with new List<roles>. Available for role: ADMIN; Valid@PathVariable("email") & Valid@RequestBody Set<String> roles are required;"
+
+###
+
+#### 4.1.1 List of all active users(get-mapping)
+Return list of all active users and status 200, or empty list and status.
+
+>Access: ADMIN access
+>
+>URL: *api/user/get/list*
+>
+Input: *No input*  
+
+#### 4.1.2 Get user by id(get-mapping)
+Return selected user by id and return status 200. If Not found return status 404.
+
+>Access: USER and ADMIN access
+>
+>URL: */api/user/id/{id}*
+>
+Input: *@Valid @PathVariable("userId")*
+
+#### 4.1.3 Get user by email(get-mapping)
+Return selected user by email and status 200, if not found return status 404.
+
+>Access: ADMIN access
+>
+>URL: */api/user/email/{email}*
+>
+Input: *@Valid @PathVariable("email")*
+
+#### 4.1.4 Create new user(post-mapping)
+Create new user with default USER_ROLE and return created user with status 200. If email is taken stop creating new user and return code 400 with its message
+
+>Access: public access
+>
+>URL: */api/user/create*
+>
+Input: *@Valid @RequestBody UserRequestDto*
+
+#### 4.1.5 Update user's data(put-mapping)
+Update your own data(all properties except for email, roles and password) and return updated user with status 200.
+If emails of authenticated user and user who is getting updated do not match return status 400.
+
+>Access: USER or ADMIN access
+>
+>URL: */api/user/update/{email}*
+>
+Input: *@Valid @RequestBody UserRequestUpdateDto*
+
+#### 4.1.6 Promote ROLES (post-mapping)
+Promote OTHER user's 'USER' role to 'ADMIN' and return promoted user with status 200.
+If you try to promote your own role it returns status 404.
+
+>Access: ADMIN access
+>
+>URL: */api/user/promoteUserToAdmin/{email}*
+>
+Input: *@Valid @PathVariable("email")*
+
+#### 4.1.7 Delete user by email(delete-mapping)
+Soft deactivation of user by email and return deactivated user with status 200.
+If you try to deactivate yourself it returns status 409.
+
+>Access: ADMIN access
+>
+>URL: */api/user/{email}*
+>
+Input: *@Valid @PathVariable("email")*
+#### 4.1.8 Generate JWT-token(post-mapping)
+Generate token for authentication to log in and return token with code 200.
+If password and email not found or not match returns status 404.
+
+>Access: PUBLIC access
+>
+>URL: *api/user/login*
+>
+Input: *@Valid @RequestParam(String: email & password)*
+#### 4.1.9 Update roles(post-mapping)
+Rewrite someone's roles with new List<Roles>  and return promoted user with status 200.
+If you try to promote your own role it returns status 404.
+
+>Access: ADMIN access
+>
+>URL: */api/user/updateRoles/{email}*
+>
+Input: *@Valid @PathVariable("email") @RequestBody Set<String> *
  
 ### 4.2 Film
 
