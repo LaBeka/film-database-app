@@ -70,13 +70,13 @@ VALUES ('jdoe', 'john@example.com', '$2a$12$uV2rFTwBrfqQh//ZWQNzEeBOhAFrLcESuYMs
         false);
 
 -- Assign Roles
--- John is a USER (1, 1), Alice is an USER and ADMIN (2, 1), (2, 2)
+-- John is a USER (1, 2), Alice is an USER and ADMIN (2, 1), (2, 2)
 -- User not active is user and admin (3, 1), (3, 2);
 
 -- password for all listed users is pass
 
 INSERT INTO users_roles(user_id, role_id)
-VALUES (1, 1),
+VALUES (1, 2),
        (2, 1),
        (2, 2),
        (3, 1),

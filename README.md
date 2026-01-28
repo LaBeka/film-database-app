@@ -11,23 +11,23 @@ The project can be run locally but intends to be running in a docker compose in 
  
 ### 4.1 User
 4.1.1 
-URL: @GetMapping"/api/user/get/list"; description: "List of all active users. No Parameter required; Available for role: ADMIN"
-4.1.2 
-URL: @GetMapping"/api/user/id/{id}"; description: "Get user by id. Valid@PathVariable("id") required; Available for role: USER and ADMIN"
-4.1.3 
-URL: @GetMapping"/api/user/email/{email}"; description: "Get user by email. Available for role: ADMIN; Valid@PathVariable("email") required;"
-4.1.4 
-URL: @PostMapping("/api/user/create"); description: Create new user with default 'USER' role and send back created UserResponseDto. If email is taken throws exception404/400/403. NO ROLE required;
-4.1.5 
-URL:  @PutMapping("/update/{email}"); description: Update your own data, throws exception 400 if you try update someone else's data. @Valid @RequestBody UserRequestUpdateDto required; Available for roles: USER or ADMIN
-4.1.6 
-URL: @PostMapping("/promoteUserToAdmin/{email}"); description: Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict-409 exception. Available for role: ADMIN; Valid@PathVariable("email") required;"
-4.1.7 
-URL: @DeleteMapping("/{email}"); description: Delete user by email. If you try to remove yourself from db it throws exception 409. Available for role: ADMIN; Valid@PathVariable("email") required;"
-4.1.8 
-URL: @PostMapping("/login"); description: Create token for authentication to log in. NO ROLE required; Valid@@RequestParam(Strign: email&password) required;"
-4.1.9 
-URL: @PostMapping("/updateRoles/{email}"); description: Update only OTHER's ROLES. Rewrite omeone's roles with new List<roles>. Available for role: ADMIN; Valid@PathVariable("email") & Valid@RequestBody Set<String> roles are required;"
+#### URL: @GetMapping"/api/user/get/list"; description: "List of all active users. No Parameter required; Available for role: ADMIN"
+4.1.2
+#### URL: @GetMapping"/api/user/id/{id}"; description: "Get user by id. Valid@PathVariable("id") required; Available for role: USER and ADMIN"
+4.1.3
+#### URL: @GetMapping"/api/user/email/{email}"; description: "Get user by email. Available for role: ADMIN; Valid@PathVariable("email") required;"
+4.1.4
+#### URL: @PostMapping("/api/user/create"); description: Create new user with default 'USER' role and send back created UserResponseDto. If email is taken throws exception404/400/403. NO ROLE required;
+4.1.5
+#### URL:  @PutMapping("/api/user/update/{email}"); description: Update your own data, throws exception 400 if you try update someone else's data. @Valid @RequestBody UserRequestUpdateDto required; Available for roles: USER or ADMIN
+4.1.6
+#### URL: @PostMapping("/api/user/promoteUserToAdmin/{email}"); description: Promote OTHER user's 'USER' role to 'ADMIN'. If you try to promote yourself it throws Conflict-409 exception. Available for role: ADMIN; Valid@PathVariable("email") required;"
+4.1.7
+#### URL: @DeleteMapping("v/{email}"); description: Delete user by email. If you try to remove yourself from db it throws exception 409. Available for role: ADMIN; Valid@PathVariable("email") required;"
+4.1.8
+#### URL: @PostMapping("/api/user/login"); description: Create token for authentication to log in. NO ROLE required; Valid@@RequestParam(Strign: email&password) required;"
+4.1.9
+#### URL: @PostMapping("/api/user/updateRoles/{email}"); description: Update only OTHER's ROLES. Rewrite omeone's roles with new List<roles>. Available for role: ADMIN; Valid@PathVariable("email") & Valid@RequestBody Set<String> roles are required;"
  
 ### 4.2 Film
 
