@@ -119,7 +119,7 @@ Example:
 Api for displaying and editing reviews.
 ####
 
-To run locally use http://localhost:8080/ + <Endpoint-URL>
+To run locally use http://localhost:8080/ + < Endpoint-URL >
 
 ###
 
