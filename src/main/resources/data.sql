@@ -83,8 +83,19 @@ VALUES (1, 2),
        (3, 2);
 
 INSERT INTO films(title, age_restriction, aspect_ratio)
-VALUES ('testfilm1', 15, 2.2),
-       ('testfilm2', 15, 2.2);
+VALUES ('test', 15, '4:3');
+
+
+INSERT INTO films (title, release_year, genre, cast, age_restriction, aspect_ratio) 
+VALUES  ('Jurassic Park', 1993, 'adventure', 'Jeff Goldblum', 15, '50:27'),
+	('The Godfather', 1972, 'crime', 'Marlon Brando', 15, '50:27'),
+	('Pulp Fiction', 1994, 'crime', 'John Travolta', 15, '43:18'),
+	('Fight Club', 1999, 'crime', 'Brad Pitt', 15, '43:18'),
+	('The Matrix', 1999, 'action', 'Keanu Reeves', 15, '43:18'),
+	('Back to the future', 1985, 'adventure', 'Michael J. Fox', 15, '50:27'),
+	('Psycho', 1960, 'horror', 'Anthony Perkins', 15, '50:27'),
+	('Apocalypse Now', 1979, 'crime', 'Marlon Brando', 15, '43:18');
+
 
 -- Insert Reviews
 INSERT INTO reviews (text, date, score, film_id, user_id)
