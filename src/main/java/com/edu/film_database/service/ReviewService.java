@@ -106,15 +106,19 @@ public class ReviewService {
 
     public FilmReviewResponseDto createReview(Principal principal, CreateReviewRequestDto dto){
         Optional<Film> film_tmp = film_repo.findById(dto.getFilmId());
-        Review review_tmp;
+        Optional<User> user_tmp = user_repo.findByEmail(principal.getName());
         if(film_tmp.isPresent()){
-            review_tmp = review_repo.save(
-                            new Review(
+            if(user_tmp.isEmpty()){
+                throw new UserNotFoundException("User with email " + principal.getName() +
+                        " does not exist, cannot create review");
+            }
+            Review review_tmp = review_repo.save(
+                                new Review(
                                 dto.getText(),
                                 LocalDate.now(),
                                 dto.getScore(),
-                                user_repo.findByEmail(principal.getName()).get(),
-                                film_repo.findById(film_tmp.get().getId()).get()
+                                user_tmp.get(),
+                                film_tmp.get()
             ));
             return convertFromFilmReview(review_tmp);
         }
@@ -122,11 +126,15 @@ public class ReviewService {
     }
 
     public FilmReviewResponseDto updateReview(Principal principal, UpdateReviewRequestDto dto){
-        User user_tmp = user_repo.findByEmail(principal.getName()).get();
+        Optional<User> user_tmp = user_repo.findByEmail(principal.getName());
         Optional<Review> review_tmp = review_repo.findById(dto.getReviewIndex());
 
         if(review_tmp.isPresent()){
-            if(review_tmp.get().getUser().equals(user_tmp)){
+            if(user_tmp.isEmpty()) {
+                throw new UserNotFoundException("User with email " + principal.getName() +
+                        " does not exist cannot, update review");
+            }
+            if(review_tmp.get().getUser().equals(user_tmp.get())){
                 updateReviewFields(review_tmp.get(), dto);
                 return convertFromFilmReview(review_tmp.get());
             }

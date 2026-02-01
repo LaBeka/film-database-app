@@ -38,12 +38,12 @@ public interface ReviewApi {
             @PathVariable String email);
 
     @PostMapping("user/createReview")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Create a new review")
     public ResponseEntity<FilmReviewResponseDto> createReview(@RequestBody CreateReviewRequestDto dto, Principal principal);
 
     @PatchMapping("user/updateReview")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Update an existing review")
     public ResponseEntity<FilmReviewResponseDto> updateReview(@RequestBody UpdateReviewRequestDto dto, Principal principal);
 
